@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="main_screen_padding_top">20dp</dimen>
+    <dimen name="dashboard_text_padding_top">20dp</dimen>
+    <dimen name="item_top_padding">0dp</dimen>
+    <integer name="rowcountforland">2</integer>
+    <integer name="colcountforland">4</integer>
+    <dimen name="dashbordcardpadding">20dp</dimen>
+    <dimen name="dashbordpadding">1dp</dimen>
+    <dimen name="dashbordmargin">20dp</dimen>
+    <dimen name="card_heigh">320dp</dimen>
+    <dimen name="card_width">280dp</dimen>
+    <dimen name="fault_item_weight">630dp</dimen>
+    <dimen name="fault_item_top_padding">30dp</dimen>
+    <dimen name="defect_screen_empty_spacing">180dp</dimen>
+    <dimen name="garment_item_width">450dp</dimen>
+    <dimen name="font_size_of_qmp">30dp</dimen>
+
+</resources>
