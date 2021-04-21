@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
@@ -34,6 +35,7 @@ import com.example.endline.models.lines_model;
 import com.example.endline.models.operation_model;
 import com.example.endline.models.order_model;
 import com.example.endline.models.size_model;
+import com.google.gson.JsonObject;
 import com.toptoche.searchablespinnerlibrary.SearchableSpinner;
 import com.travijuu.numberpicker.library.NumberPicker;
 
@@ -41,6 +43,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.sql.SQLOutput;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -275,11 +278,23 @@ public class Fault_Submission_Activity extends AppCompatActivity {
         final HashMap<String, String> params = new HashMap<>();
         params.put("endLineSessionID", Session_id);
         params.put("bundleScanID", operation.getBundle_scan_id());
-        params.put("faultID", fault.getFault_id());
-        params.put("faultCount", fault.getFault_count());
-        params.put("reworkState", "0");
+
+        JSONObject jsonResult = new JSONObject();
+        try {
+            jsonResult.accumulate("faultCount", fault.getFault_count());
+            jsonResult.accumulate("faultID", fault.getFault_id());
+        } catch (JSONException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+        System.out.println("jsonResult->"+jsonResult);
+        params.put("fault", jsonResult.toString());
+
+        System.out.println(new JSONObject(params).toString());
+
         RequestQueue queue = Volley.newRequestQueue(getApplicationContext());
-        JsonObjectRequest req = new JsonObjectRequest(Request.Method.POST, ip.getIp() + api.submit_faults, new JSONObject(params),
+        JsonObjectRequest req = new JsonObjectRequest(Request.Method.POST, ip.getIp() + api.registerFaults, new JSONObject(params),
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
@@ -383,9 +398,10 @@ public class Fault_Submission_Activity extends AppCompatActivity {
         showLoader();
         operation_list.clear();
         final HashMap<String, String> params = new HashMap<>();
-//        params.put("bundleID", Bundle_extra.getBundle_id());
+       params.put("bundleID", Bundle_extra.getBundle_id());
         RequestQueue queue = Volley.newRequestQueue(getApplicationContext());
-        JsonObjectRequest req = new JsonObjectRequest(Request.Method.GET, ip.getIp() + api.getOperationWorkerForBundle+"/"+Bundle_extra.getBundle_id(), new JSONObject(params),
+
+        JsonObjectRequest req = new JsonObjectRequest(Request.Method.POST, ip.getIp() + api.getOperationWorkerForBundle, new JSONObject(params),
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
@@ -394,24 +410,32 @@ public class Fault_Submission_Activity extends AppCompatActivity {
                             String desc = response.getString("errorDescription");
                             if (error.equals("0")) {
                                 JSONArray s = response.getJSONArray("data");
+                                System.out.println(s);
                                 operation_list.add(new operation_model("0", "", "", "Please choose", "", "", ""));
                                 for (int i = 0; i < s.length(); i++) {
                                     JSONObject res = (JSONObject) s.get(i);
 
-                                    String bundle_scan_id = res.getString("BundleScanID");
-                                    String operation_id = res.getString("OperationID");
-                                    String operation_code = res.getString("OperationCode");
-                                    String operation_desc = res.getString("OperationDescription");
-                                    String worker_id =    res.getString("WorkerID");
-                                    String worker_code = res.getString("WorkerCode");
-                                    String worker_name = res.getString("WorkerDescription");
+                                    String bundle_scan_id = res.getString("bundleScanID");
+                                    String operation_id = res.getString("operationID");
+                                    String operation_code = res.getString("operationCode");
+                                    String operation_desc = res.getString("operationDescription");
+                                    String worker_id =    res.getString("workerID");
+                                    String worker_code = res.getString("workerCode");
+                                    String worker_name = res.getString("workerDescription");
                                     operation_list.add(new operation_model(bundle_scan_id, operation_id, operation_code, operation_desc, worker_id, worker_code, worker_name));
                                 }
-                                ArrayAdapter<operation_model> dataAdapter = new ArrayAdapter<>(Fault_Submission_Activity.this, android.R.layout.simple_spinner_item, operation_list);
-                                dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-                                operation_spinner.setAdapter(dataAdapter);
+                                if(s.length()!=0){
+                                    ArrayAdapter<operation_model> dataAdapter = new ArrayAdapter<>(Fault_Submission_Activity.this, android.R.layout.simple_spinner_item, operation_list);
+                                    dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                                    operation_spinner.setAdapter(dataAdapter);
+                                    set_operation_spinner();
+                                }
+                                else {
+                                    Toast.makeText(getApplicationContext(), "No operations available",
+                                            Toast.LENGTH_SHORT).show();
+                                }
                                 hideLoader();
-                                set_operation_spinner();
+
                             } else {
                                 hideLoader();
                                 Toast.makeText(getApplicationContext(), "Unable to fetch operations: " + desc,
@@ -460,7 +484,7 @@ public class Fault_Submission_Activity extends AppCompatActivity {
     public void close_endline_session(final String rejected_pieces, final String fault_pieces, final AlertDialog dialog) {
         showLoader();
         final HashMap<String, String> params = new HashMap<>();
-        params.put("endlineSessionID", Session_id);
+        params.put("endLineSessionID", Session_id);
         params.put("rejectedPieces", rejected_pieces);
         params.put("defectedPieces", fault_pieces);
         params.put("bundleID", Bundle_extra.getBundle_id());
@@ -473,6 +497,7 @@ public class Fault_Submission_Activity extends AppCompatActivity {
                         try {
                             String error = response.getString("errorNo");
                             String desc = response.getString("errorDescription");
+                            System.out.println(response);
                             if (error.equals("0")) {
                                 dialog.cancel();
                                 hideLoader();
@@ -535,6 +560,8 @@ public class Fault_Submission_Activity extends AppCompatActivity {
                     is_quality_checked = "0";
                 }
 
+
+                System.out.println(faulty_pieces+"==="+rejected_pieces+"==="+Integer.parseInt(Bundle_extra.getBundle_qty()));
                 if ((faulty_pieces.getValue() > Integer.parseInt(Bundle_extra.getBundle_qty()))
                         || (rejected_pieces.getValue() > Integer.parseInt(Bundle_extra.getBundle_qty()))
                         || (faulty_pieces.getValue() + rejected_pieces.getValue() > Integer.parseInt(Bundle_extra.getBundle_qty()))) {

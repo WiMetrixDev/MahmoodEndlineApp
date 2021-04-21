@@ -94,6 +94,9 @@ public class bundle_model implements Serializable {
 
     @Override
     public String toString() {
-        return bundle_code + " " + bundle_status;
+        if(bundle_status.equalsIgnoreCase("Please Choose")){
+            return bundle_status;
+        }
+        return "Bundle Code: "+bundle_code + " Bundle Status: " + bundle_status + " Bundle Quantity: " + bundle_qty;
     }
 }

@@ -245,16 +245,7 @@ public class Bundle_Selection_Activity extends AppCompatActivity {
                                         public void onClick(DialogInterface dialog, int which) {
                                             dialog.cancel();
                                             Bundle.setRework_state("0");
-                                            Intent intent = new Intent(Bundle_Selection_Activity.this, Fault_Submission_Activity.class);
-                                            intent.putExtra("PO", PO);
-                                            intent.putExtra("Line", Lines_extra);
-                                            intent.putExtra("Cut", Cut);
-                                            Bundle lists_bundle = new Bundle();
-                                            lists_bundle.putSerializable("Faults_List", fault_list);
-                                            intent.putExtra("Lists", lists_bundle);
-                                            intent.putExtra("Bundle", Bundle);
-                                            intent.putExtra("Session_id", Bundle.getSession_id());
-                                            startActivity(intent);
+                                            endline_session_login(allowed_module_id, Lines_extra, PO, Cut, Bundle);
                                         }
                                     })
                                     .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
@@ -269,16 +260,8 @@ public class Bundle_Selection_Activity extends AppCompatActivity {
                             alert.show();
                         } else if (Bundle.getRework_state().equals("1")) {
                             Bundle.setRework_state("1");
-                            Intent intent = new Intent(Bundle_Selection_Activity.this, Fault_Submission_Activity.class);
-                            intent.putExtra("PO", PO);
-                            intent.putExtra("Line", Lines_extra);
-                            intent.putExtra("Cut", Cut);
-                            Bundle lists_bundle = new Bundle();
-                            lists_bundle.putSerializable("Faults_List", fault_list);
-                            intent.putExtra("Lists", lists_bundle);
-                            intent.putExtra("Bundle", Bundle);
-                            intent.putExtra("Session_id", Bundle.getSession_id());
-                            startActivity(intent);
+                            endline_session_login(allowed_module_id, Lines_extra, PO, Cut, Bundle);
+
                         }
                     }
 
@@ -535,9 +518,10 @@ public class Bundle_Selection_Activity extends AppCompatActivity {
     }
     public void fetch_job_card_data(final String ItemID, final String user_permission_id, final String user_id ,final lines_model Line) {
         final HashMap<String, String> params = new HashMap<String, String>();
-        params.put("bundleID", ItemID);
-        params.put("userID", user_id);
-        params.put("lineID", Line.getLine_id());
+        System.out.println("ItemID======"+ItemID);
+        params.put("tagID", ItemID);
+//        params.put("userID", user_id);
+//        params.put("lineID", Line.getLine_id());
         RequestQueue queue = Volley.newRequestQueue(getApplicationContext());
         JsonObjectRequest req = new JsonObjectRequest(Request.Method.POST, ip.getIp() + api.getDetailsForBundleCard, new JSONObject(params),
                 new Response.Listener<JSONObject>() {
@@ -549,20 +533,20 @@ public class Bundle_Selection_Activity extends AppCompatActivity {
                             if (error.equals("0")) {
                                 JSONObject  s = response.getJSONObject("data");
                                 System.out.println(s);
-                                String orderID = s.getString("OrderID");
-                                String style = s.getString("StyleCode");
-                                String orderCode = s.getString("OrderCode");
-                                final String size_id = s.getString("SizeID");
-                                final String size_code = s.getString("SizeID");
-                                String color = s.getString("Color");
-                                final String lotCode = s.getString("JobCardNo");
-                                String bundleID = s.getString("BundleID");
-                                String bundleCode = s.getString("BundleCode");
-                                String bundleQuantity = s.getString("BundleQuantity");
-                                String endlineSessionId = s.getString("EndLineSessionID");
-                                String reworkState = s.getString("ReworkState");
-                                String faultyPieces = s.getString("DefectedPieces");
-                                String rejectedPieces = s.getString("RejectedPieces");
+                                String orderID = s.getString("orderID");
+                                String style = s.getString("styleCode");
+                                String orderCode = s.getString("orderCode");
+                                final String size_id = s.getString("size");
+                                final String size_code = s.getString("size");
+                                String color = s.getString("color");
+                                final String lotCode = s.getString("cutJobCode");
+                                String bundleID = s.getString("cutReportID");
+                                String bundleCode = s.getString("bundleCode");
+                                String bundleQuantity = s.getString("bundleQuantity");
+                                String endlineSessionId = s.getString("endLineSessionID");
+                                String reworkState = s.getString("reworkState");
+                                String faultyPieces = s.getString("defectedPieces");
+                                String rejectedPieces = s.getString("rejectedPieces");
                                 String bundle_status = "";
                                 if (reworkState.equals("-1")) {
                                     bundle_status = "NOT CHECKED";
@@ -588,7 +572,7 @@ public class Bundle_Selection_Activity extends AppCompatActivity {
                                     lists_bundle.putSerializable("Faults_List", fault_list);
                                     intent.putExtra("Lists", lists_bundle);
                                     intent.putExtra("Lot", lotCode);
-                                    intent.putExtra("Bundle", Bundle);
+                                    intent.putExtra("Bundle", Bundle.getBundle_code());
                                     intent.putExtra("Session_id", Bundle.getSession_id());
                                     startActivity(intent);
                                 } else if (reworkState.equals("0")) {
@@ -608,7 +592,7 @@ public class Bundle_Selection_Activity extends AppCompatActivity {
                                                     Bundle lists_bundle = new Bundle();
                                                     lists_bundle.putSerializable("Faults_List", fault_list);
                                                     intent.putExtra("Lists", lists_bundle);
-                                                    intent.putExtra("Bundle", Bundle);
+                                                    intent.putExtra("Bundle", Bundle.getBundle_code());
                                                     intent.putExtra("Session_id", Bundle.getSession_id());
                                                     startActivity(intent);
                                                 }
@@ -668,11 +652,14 @@ public class Bundle_Selection_Activity extends AppCompatActivity {
     public void endline_session_login(final String user_permission_id, final lines_model Line, final order_model PO, final String Lot, final bundle_model Bundle) {
     showLoader();
         final HashMap<String, String> params = new HashMap<String, String>();
-        params.put("bundleID", Bundle.getBundle_id());
         params.put("userID", user_id);
         params.put("lineID", Line.getLine_id());
         params.put("reworkState", Bundle.getRework_state());
         params.put("orderID", PO.getOrder_id());
+        params.put("allowedModuleID", allowed_module_id);
+        params.put("rejectedPieces", Bundle.getRejected_pieces());
+        params.put("defectedPieces", Bundle.getFaulty_pieces());
+        params.put("cutReportID", Bundle.getBundle_id());
         RequestQueue queue = Volley.newRequestQueue(getApplicationContext());
         JsonObjectRequest req = new JsonObjectRequest(Request.Method.POST, ip.getIp() + api.endline_session, new JSONObject(params),
                 new Response.Listener<JSONObject>() {
@@ -684,8 +671,7 @@ public class Bundle_Selection_Activity extends AppCompatActivity {
                             System.out.println(response);
                             if (error.equals("0")) {
                                 hideLoader();
-                                JSONObject s = response.getJSONObject("data");
-                                String session_id = s.getString("EndlineSessionID");
+                                String session_id = response.getString("endLineSessionID");
                                 Intent intent = new Intent(Bundle_Selection_Activity.this, Fault_Submission_Activity.class);
                                 intent.putExtra("PO", PO);
                                 intent.putExtra("Line", Line);
@@ -697,6 +683,7 @@ public class Bundle_Selection_Activity extends AppCompatActivity {
                                 intent.putExtra("Lot", Lot);
                                 intent.putExtra("Bundle", Bundle);
                                 intent.putExtra("Session_id", session_id);
+                                System.out.println("Session id=="+session_id);
                                 startActivity(intent);
 
                             } else {
