@@ -61,6 +61,7 @@ public class Bundle_Selection_Activity extends AppCompatActivity {
     String[][] mTechLists = new String[][]{new String[]{MifareClassic.class.getName()}};
     Button submitbtn;
     ArrayList<bundle_model> bundle_list = new ArrayList<>();
+    ArrayList<String> size_list = new ArrayList<>();
     ArrayList<order_model> order_list = new ArrayList<>();
     ArrayList<fault_model> fault_list = new ArrayList<>();
     ArrayList<cut_job_model> cut_job_list = new ArrayList<>();
@@ -68,6 +69,7 @@ public class Bundle_Selection_Activity extends AppCompatActivity {
     SearchableSpinner lot_spinner;
     SearchableSpinner bundle_spinner;
     SearchableSpinner order_spinner;
+    SearchableSpinner spinner_size;
     lines_model Lines_extra;
     TextView text_Line;
     IP ip;
@@ -223,12 +225,14 @@ public class Bundle_Selection_Activity extends AppCompatActivity {
         lot_spinner = findViewById(R.id.spinner_lot);
         bundle_spinner = findViewById(R.id.spinner_bundle);
         text_Line = findViewById(R.id.text_Line);
+        spinner_size = findViewById(R.id.spinner_size);
     }
     public void layout_listeners() {
         submitbtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (order_spinner.getSelectedItemPosition() > 0 && lot_spinner.getSelectedItemPosition() > 0 && bundle_spinner.getSelectedItemPosition() > 0) {
+                System.out.println(bundle_spinner.getSelectedItemPosition());
+                if (order_spinner.getSelectedItemPosition() > 0 && lot_spinner.getSelectedItemPosition() > 0 && spinner_size.getSelectedItemPosition() > 0  && bundle_spinner.getSelectedItemPosition() > 0) {
                     final String Cut = lot_spinner.getSelectedItem().toString();
                     final bundle_model Bundle = (bundle_model) bundle_spinner.getSelectedItem();
                     final order_model PO = (order_model) order_spinner.getSelectedItem();
@@ -299,6 +303,7 @@ public class Bundle_Selection_Activity extends AppCompatActivity {
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 lot_spinner.setAdapter(null);
                 bundle_spinner.setAdapter(null);
+                spinner_size.setAdapter(null);
                 if(order_spinner.getSelectedItemPosition()>0){
                     order_model order = (order_model) order_spinner.getSelectedItem();
                     fetch_cut_jobs(order.getOrder_id());
@@ -314,6 +319,7 @@ public class Bundle_Selection_Activity extends AppCompatActivity {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 bundle_spinner.setAdapter(null);
+                spinner_size.setAdapter(null);
                 if (lot_spinner.getSelectedItemPosition() > 0) {
                     order_model order = (order_model) order_spinner.getSelectedItem();
                     cut_job_model Lot = (cut_job_model) lot_spinner.getSelectedItem();
@@ -326,6 +332,32 @@ public class Bundle_Selection_Activity extends AppCompatActivity {
 
             }
         });
+
+        spinner_size.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                bundle_spinner.setAdapter(null);
+                if (spinner_size.getSelectedItemPosition() > 0) {
+                    ArrayList<bundle_model> filterd_bundle_list = new ArrayList<>();
+                    for (int j=0; j<bundle_list.size(); j++){
+                        if(bundle_list.get(i).getSize().equals(spinner_size.getSelectedItem())){
+                            filterd_bundle_list.add(bundle_list.get(j));
+                        }
+                    }
+                    ArrayAdapter<bundle_model> dataAdapter = new ArrayAdapter<>(Bundle_Selection_Activity.this, android.R.layout.simple_spinner_item, filterd_bundle_list);
+                    dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                    bundle_spinner.setAdapter(dataAdapter);
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
+        });
+
+
+
         bundle_spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
@@ -355,13 +387,15 @@ public class Bundle_Selection_Activity extends AppCompatActivity {
                                 order_list.add(new order_model("", "Please Choose", "", "", ""));
                                 for (int i = 0; i < s.length(); i++) {
                                     JSONObject res = (JSONObject) s.get(i);
+                                    System.out.println("==="+res);
                                     String order_id = res.getString("productionOrderID");
                                     String po_no = res.getString("productionOrderCode");
                                     String color = res.getString("color");
-                                    String size = res.getString("size");
+                                    String size = "";
                                     String style = res.getString("styleCode");
                                     order_list.add(new order_model(order_id, po_no, color, size, style));
                                 }
+
                                 ArrayAdapter<order_model> dataAdapter = new ArrayAdapter<>(Bundle_Selection_Activity.this, android.R.layout.simple_spinner_item, order_list);
                                 dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
                                 order_spinner.setAdapter(dataAdapter);
@@ -443,6 +477,23 @@ public class Bundle_Selection_Activity extends AppCompatActivity {
                 DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
                 DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
     }
+
+
+    public void fetch_size(){
+        size_list.clear();
+        size_list.add("Please Choose");
+        for (int i=1; i<bundle_list.size(); i++){
+            if(!size_list.contains(bundle_list.get(i).getSize())) {
+                size_list.add(bundle_list.get(i).getSize());
+            }
+        }
+
+        ArrayAdapter<String> dataAdapter = new ArrayAdapter<>(Bundle_Selection_Activity.this, android.R.layout.simple_spinner_item, size_list);
+        dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinner_size.setAdapter(dataAdapter);
+    }
+
+
     public void fetch_bundle(final String OrderID, final String Lot) {
         showLoader();
         bundle_list.clear();
@@ -458,7 +509,7 @@ public class Bundle_Selection_Activity extends AppCompatActivity {
                             String desc = response.getString("errorDescription");
                             if (error.equals("0")) {
                                 JSONArray s = response.getJSONArray("data");
-                                bundle_list.add(new bundle_model("", "Please Choose", "", "0", "", "", "", ""));
+                                bundle_list.add(new bundle_model("", "Please Choose", "", "0", "", "", "", "",""));
                                 for (int i = 0; i < s.length(); i++) {
                                     JSONObject res = (JSONObject) s.get(i);
                                     System.out.println(res);
@@ -469,6 +520,7 @@ public class Bundle_Selection_Activity extends AppCompatActivity {
                                     String rework_state = res.getString("reworkState");
                                     String defected_pieces =  res.getString("defectedPieces");
                                     String rejectedPieces =  res.getString("rejectedPieces");
+                                    String size =  res.getString("size");
 
                                     if (rework_state.equals("-1")) {
                                         bundle_status = "NOT CHECKED";
@@ -479,13 +531,13 @@ public class Bundle_Selection_Activity extends AppCompatActivity {
                                     if (rework_state.equals("1")) {
                                         bundle_status = "REWORKED";
                                     }
-                                    bundle_list.add(new bundle_model(bundle_code, bundle_status, bundle_id, bundle_qty, defected_pieces, rejectedPieces, rework_state, ""));
+                                    bundle_list.add(new bundle_model(bundle_code, bundle_status, bundle_id, bundle_qty, defected_pieces, rejectedPieces, rework_state, "",size));
                                 }
-                                ArrayAdapter<bundle_model> dataAdapter = new ArrayAdapter<>(Bundle_Selection_Activity.this, android.R.layout.simple_spinner_item, bundle_list);
-                                dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-                                bundle_spinner.setAdapter(dataAdapter);
-                                hideLoader();
+//                                ArrayAdapter<bundle_model> dataAdapter = new ArrayAdapter<>(Bundle_Selection_Activity.this, android.R.layout.simple_spinner_item, bundle_list);
+//                                dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+//                                bundle_spinner.setAdapter(dataAdapter);
 
+                                fetch_size();
                                 hideLoader();
                             } else {
                                 hideLoader();
@@ -558,7 +610,7 @@ public class Bundle_Selection_Activity extends AppCompatActivity {
                                     bundle_status = "REWORKED";
                                 }
                                 final order_model PO = new order_model(orderID, orderCode, color, size_code, style);
-                                final bundle_model Bundle = new bundle_model(bundleCode, bundle_status, bundleID, bundleQuantity, faultyPieces, rejectedPieces, reworkState, endlineSessionId);
+                                final bundle_model Bundle = new bundle_model(bundleCode, bundle_status, bundleID, bundleQuantity, faultyPieces, rejectedPieces, reworkState, endlineSessionId, size_code );
                                 bundle_list.add(Bundle);
                                 if (reworkState.equals("-1")) {
                                     Bundle.setRework_state("0");
@@ -666,9 +718,10 @@ public class Bundle_Selection_Activity extends AppCompatActivity {
                     @Override
                     public void onResponse(JSONObject response) {
                         try {
+                            System.out.println("===="+response);
                             String error = response.getString("errorNo");
                             String desc = response.getString("errorDescription");
-                            System.out.println(response);
+
                             if (error.equals("0")) {
                                 hideLoader();
                                 String session_id = response.getString("endLineSessionID");

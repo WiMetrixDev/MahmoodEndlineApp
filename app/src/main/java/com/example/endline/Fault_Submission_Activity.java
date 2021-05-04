@@ -561,7 +561,7 @@ public class Fault_Submission_Activity extends AppCompatActivity {
                 }
 
 
-                System.out.println(faulty_pieces+"==="+rejected_pieces+"==="+Integer.parseInt(Bundle_extra.getBundle_qty()));
+                System.out.println(faulty_pieces.getValue()+"==="+rejected_pieces.getValue()+"==="+Integer.parseInt(Bundle_extra.getBundle_qty()));
                 if ((faulty_pieces.getValue() > Integer.parseInt(Bundle_extra.getBundle_qty()))
                         || (rejected_pieces.getValue() > Integer.parseInt(Bundle_extra.getBundle_qty()))
                         || (faulty_pieces.getValue() + rejected_pieces.getValue() > Integer.parseInt(Bundle_extra.getBundle_qty()))) {
