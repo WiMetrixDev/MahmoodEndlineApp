@@ -736,7 +736,6 @@ public class Bundle_Selection_Activity extends AppCompatActivity {
                                 intent.putExtra("Lot", Lot);
                                 intent.putExtra("Bundle", Bundle);
                                 intent.putExtra("Session_id", session_id);
-                                System.out.println("Session id=="+session_id);
                                 startActivity(intent);
 
                             } else {

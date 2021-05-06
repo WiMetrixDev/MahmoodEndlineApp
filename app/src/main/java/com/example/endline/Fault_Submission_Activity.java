@@ -84,13 +84,7 @@ public class Fault_Submission_Activity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_fault__submission);
         Toolbar toolbar = findViewById(R.id.toolbar);
-        toolbar.setNavigationIcon(R.drawable.back_arrow_icon);
-        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                finish();
-            }
-        });
+
         SharedPreferences sp = getSharedPreferences("your_prefs", Activity.MODE_PRIVATE);
         String IP = sp.getString("IP", null);
         ip = new IP(IP);
@@ -99,6 +93,7 @@ public class Fault_Submission_Activity extends AppCompatActivity {
         get_extras();
         spinner_listeners();
         fetch_fault_category_list();
+
     }
 
     public void layout_listeners() {
@@ -181,7 +176,7 @@ public class Fault_Submission_Activity extends AppCompatActivity {
         Session_id = i.getStringExtra("Session_id");
         text_po.setText(PO_extra.getOrder_code());
         text_style.setText(PO_extra.getStyle());
-        text_size.setText(PO_extra.getSize());
+        text_size.setText(Bundle_extra.getSize());
         text_color.setText(PO_extra.getColor());
         text_lot.setText(Lot_extra);
         text_bundle.setText(Bundle_extra.getBundle_code());
@@ -382,16 +377,18 @@ public class Fault_Submission_Activity extends AppCompatActivity {
     }
 
     public void onBackPressed() {
-        Intent openMainActivity = new Intent(Fault_Submission_Activity.this, Bundle_Selection_Activity.class);
-        openMainActivity.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-        openMainActivity.putExtra("Line", Lines_extra);
-        //openMainActivity.putExtra("Section", Section_extra);
-        openMainActivity.putExtra("PO", PO_extra);
-        Bundle lists_bundle = new Bundle();
-        //lists_bundle.putSerializable("Departments_List", department_list);
-        lists_bundle.putSerializable("Faults_List", fault_list);
-        openMainActivity.putExtra("Lists", lists_bundle);
-        startActivityIfNeeded(openMainActivity, 0);
+//        Intent openMainActivity = new Intent(Fault_Submission_Activity.this, Bundle_Selection_Activity.class);
+//        openMainActivity.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+//        openMainActivity.putExtra("Line", Lines_extra);
+//        //openMainActivity.putExtra("Section", Section_extra);
+//        openMainActivity.putExtra("PO", PO_extra);
+//        Bundle lists_bundle = new Bundle();
+//        //lists_bundle.putSerializable("Departments_List", department_list);
+//        lists_bundle.putSerializable("Faults_List", fault_list);
+//        openMainActivity.putExtra("Lists", lists_bundle);
+//        startActivityIfNeeded(openMainActivity, 0);
+        Toast.makeText(getApplicationContext(), "Can't go back",
+                Toast.LENGTH_SHORT).show();
     }
 
     public void fetch_operation() {

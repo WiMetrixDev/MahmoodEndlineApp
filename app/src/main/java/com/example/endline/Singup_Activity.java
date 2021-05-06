@@ -174,7 +174,7 @@ public class Singup_Activity extends AppCompatActivity {
                                 }
                             } else {
                                 hideLoader();
-                                Toast.makeText(getApplicationContext(), "Unable to Login TEST" + desc,
+                                Toast.makeText(getApplicationContext(), "Unable to Login " + desc,
                                         Toast.LENGTH_SHORT).show();
                             }
                         } catch (JSONException e) {
