@@ -16,8 +16,9 @@ public class bundle_model implements Serializable {
     private String rejected_pieces;
     private String rework_state;
     private String session_id;
+    private String size;
 
-    public bundle_model(String bundle_code, String bundle_status, String bundle_id, String bundle_qty, String faulty_pieces, String rejected_pieces, String rework_state, String session_id) {
+    public bundle_model(String bundle_code, String bundle_status, String bundle_id, String bundle_qty, String faulty_pieces, String rejected_pieces, String rework_state, String session_id, String size) {
         this.bundle_code = bundle_code;
         this.bundle_status = bundle_status;
         this.bundle_id = bundle_id;
@@ -26,6 +27,7 @@ public class bundle_model implements Serializable {
         this.rejected_pieces = rejected_pieces;
         this.rework_state = rework_state;
         this.session_id = session_id;
+        this.size = size;
     }
 
     public String getBundle_code() {
@@ -92,8 +94,18 @@ public class bundle_model implements Serializable {
         this.session_id = session_id;
     }
 
+    public String getSize() {
+        return size;
+    }
+
+    public void setSize(String size) {
+        this.size = size;
+    }
     @Override
     public String toString() {
-        return bundle_code + " " + bundle_status;
+        if(bundle_status.equalsIgnoreCase("Please Choose")){
+            return bundle_status;
+        }
+        return "Bundle Code: "+bundle_code + " Bundle Status: " + bundle_status + " Bundle Quantity: " + bundle_qty;
     }
 }

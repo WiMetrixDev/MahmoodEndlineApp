@@ -6,7 +6,7 @@
     android:layout_height="wrap_content"
     android:gravity="center"
     android:background="@color/colorLightGray"
-    tools:context=".Fault_Selection_Activity">
+    >
 
 
     <LinearLayout

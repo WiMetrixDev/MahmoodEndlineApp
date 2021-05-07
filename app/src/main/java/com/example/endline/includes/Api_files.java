@@ -12,14 +12,15 @@ public class Api_files {
     public String getJobCardsForOrderID = "/cutJob/get";
     public String getSizesForOrderIDJobCard = "/bundleReport/getSizesForOrderIDJobCard";
     public String getBundlesForCutJob = "/SQMS/Endline/getBundlesForCutJobID";
-    public String endline_session = "/endline/addEndlineSession";
-    public String getOperationWorkerForBundle = "/endline/getOperationsAndWorkersForBundleID";
+    public String endline_session = "/SQMS/endline/createEndlineSession";
+    public String getOperationWorkerForBundle = "/SQMS/endline/getOperationAndWorkersDetailsByBundleID";
+
+    public String registerFaults = "/SQMS/Endline/registerFaults";
 
 
-    public String submit_faults = "/endline/add";
-    public String close_endline_session = "/endline/closeEndlineSession";
+    public String close_endline_session = "/SQMS/endline/closeEndlineSession";
 
-    public String getDetailsForBundleCard = "/endline/getDetailsForBundleCard";
+    public String getDetailsForBundleCard = "/SQMS/Endline/getBundlesForTagID";
 
     public String fetch_cut_history_crID_section = "Endline/getHistoryForCRIDSection.php";
 }

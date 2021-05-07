@@ -61,6 +61,7 @@ public class Bundle_Selection_Activity extends AppCompatActivity {
     String[][] mTechLists = new String[][]{new String[]{MifareClassic.class.getName()}};
     Button submitbtn;
     ArrayList<bundle_model> bundle_list = new ArrayList<>();
+    ArrayList<String> size_list = new ArrayList<>();
     ArrayList<order_model> order_list = new ArrayList<>();
     ArrayList<fault_model> fault_list = new ArrayList<>();
     ArrayList<cut_job_model> cut_job_list = new ArrayList<>();
@@ -68,6 +69,7 @@ public class Bundle_Selection_Activity extends AppCompatActivity {
     SearchableSpinner lot_spinner;
     SearchableSpinner bundle_spinner;
     SearchableSpinner order_spinner;
+    SearchableSpinner spinner_size;
     lines_model Lines_extra;
     TextView text_Line;
     IP ip;
@@ -223,12 +225,14 @@ public class Bundle_Selection_Activity extends AppCompatActivity {
         lot_spinner = findViewById(R.id.spinner_lot);
         bundle_spinner = findViewById(R.id.spinner_bundle);
         text_Line = findViewById(R.id.text_Line);
+        spinner_size = findViewById(R.id.spinner_size);
     }
     public void layout_listeners() {
         submitbtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (order_spinner.getSelectedItemPosition() > 0 && lot_spinner.getSelectedItemPosition() > 0 && bundle_spinner.getSelectedItemPosition() > 0) {
+                System.out.println(bundle_spinner.getSelectedItemPosition());
+                if (order_spinner.getSelectedItemPosition() > 0 && lot_spinner.getSelectedItemPosition() > 0 && spinner_size.getSelectedItemPosition() > 0  && bundle_spinner.getSelectedItemPosition() > 0) {
                     final String Cut = lot_spinner.getSelectedItem().toString();
                     final bundle_model Bundle = (bundle_model) bundle_spinner.getSelectedItem();
                     final order_model PO = (order_model) order_spinner.getSelectedItem();
@@ -245,16 +249,7 @@ public class Bundle_Selection_Activity extends AppCompatActivity {
                                         public void onClick(DialogInterface dialog, int which) {
                                             dialog.cancel();
                                             Bundle.setRework_state("0");
-                                            Intent intent = new Intent(Bundle_Selection_Activity.this, Fault_Submission_Activity.class);
-                                            intent.putExtra("PO", PO);
-                                            intent.putExtra("Line", Lines_extra);
-                                            intent.putExtra("Cut", Cut);
-                                            Bundle lists_bundle = new Bundle();
-                                            lists_bundle.putSerializable("Faults_List", fault_list);
-                                            intent.putExtra("Lists", lists_bundle);
-                                            intent.putExtra("Bundle", Bundle);
-                                            intent.putExtra("Session_id", Bundle.getSession_id());
-                                            startActivity(intent);
+                                            endline_session_login(allowed_module_id, Lines_extra, PO, Cut, Bundle);
                                         }
                                     })
                                     .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
@@ -269,16 +264,8 @@ public class Bundle_Selection_Activity extends AppCompatActivity {
                             alert.show();
                         } else if (Bundle.getRework_state().equals("1")) {
                             Bundle.setRework_state("1");
-                            Intent intent = new Intent(Bundle_Selection_Activity.this, Fault_Submission_Activity.class);
-                            intent.putExtra("PO", PO);
-                            intent.putExtra("Line", Lines_extra);
-                            intent.putExtra("Cut", Cut);
-                            Bundle lists_bundle = new Bundle();
-                            lists_bundle.putSerializable("Faults_List", fault_list);
-                            intent.putExtra("Lists", lists_bundle);
-                            intent.putExtra("Bundle", Bundle);
-                            intent.putExtra("Session_id", Bundle.getSession_id());
-                            startActivity(intent);
+                            endline_session_login(allowed_module_id, Lines_extra, PO, Cut, Bundle);
+
                         }
                     }
 
@@ -316,6 +303,7 @@ public class Bundle_Selection_Activity extends AppCompatActivity {
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 lot_spinner.setAdapter(null);
                 bundle_spinner.setAdapter(null);
+                spinner_size.setAdapter(null);
                 if(order_spinner.getSelectedItemPosition()>0){
                     order_model order = (order_model) order_spinner.getSelectedItem();
                     fetch_cut_jobs(order.getOrder_id());
@@ -331,6 +319,7 @@ public class Bundle_Selection_Activity extends AppCompatActivity {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 bundle_spinner.setAdapter(null);
+                spinner_size.setAdapter(null);
                 if (lot_spinner.getSelectedItemPosition() > 0) {
                     order_model order = (order_model) order_spinner.getSelectedItem();
                     cut_job_model Lot = (cut_job_model) lot_spinner.getSelectedItem();
@@ -343,6 +332,32 @@ public class Bundle_Selection_Activity extends AppCompatActivity {
 
             }
         });
+
+        spinner_size.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                bundle_spinner.setAdapter(null);
+                if (spinner_size.getSelectedItemPosition() > 0) {
+                    ArrayList<bundle_model> filterd_bundle_list = new ArrayList<>();
+                    for (int j=0; j<bundle_list.size(); j++){
+                        if(bundle_list.get(i).getSize().equals(spinner_size.getSelectedItem())){
+                            filterd_bundle_list.add(bundle_list.get(j));
+                        }
+                    }
+                    ArrayAdapter<bundle_model> dataAdapter = new ArrayAdapter<>(Bundle_Selection_Activity.this, android.R.layout.simple_spinner_item, filterd_bundle_list);
+                    dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                    bundle_spinner.setAdapter(dataAdapter);
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
+        });
+
+
+
         bundle_spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
@@ -372,13 +387,15 @@ public class Bundle_Selection_Activity extends AppCompatActivity {
                                 order_list.add(new order_model("", "Please Choose", "", "", ""));
                                 for (int i = 0; i < s.length(); i++) {
                                     JSONObject res = (JSONObject) s.get(i);
+                                    System.out.println("==="+res);
                                     String order_id = res.getString("productionOrderID");
                                     String po_no = res.getString("productionOrderCode");
                                     String color = res.getString("color");
-                                    String size = res.getString("size");
+                                    String size = "";
                                     String style = res.getString("styleCode");
                                     order_list.add(new order_model(order_id, po_no, color, size, style));
                                 }
+
                                 ArrayAdapter<order_model> dataAdapter = new ArrayAdapter<>(Bundle_Selection_Activity.this, android.R.layout.simple_spinner_item, order_list);
                                 dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
                                 order_spinner.setAdapter(dataAdapter);
@@ -460,6 +477,23 @@ public class Bundle_Selection_Activity extends AppCompatActivity {
                 DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
                 DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
     }
+
+
+    public void fetch_size(){
+        size_list.clear();
+        size_list.add("Please Choose");
+        for (int i=1; i<bundle_list.size(); i++){
+            if(!size_list.contains(bundle_list.get(i).getSize())) {
+                size_list.add(bundle_list.get(i).getSize());
+            }
+        }
+
+        ArrayAdapter<String> dataAdapter = new ArrayAdapter<>(Bundle_Selection_Activity.this, android.R.layout.simple_spinner_item, size_list);
+        dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinner_size.setAdapter(dataAdapter);
+    }
+
+
     public void fetch_bundle(final String OrderID, final String Lot) {
         showLoader();
         bundle_list.clear();
@@ -475,7 +509,7 @@ public class Bundle_Selection_Activity extends AppCompatActivity {
                             String desc = response.getString("errorDescription");
                             if (error.equals("0")) {
                                 JSONArray s = response.getJSONArray("data");
-                                bundle_list.add(new bundle_model("", "Please Choose", "", "0", "", "", "", ""));
+                                bundle_list.add(new bundle_model("", "Please Choose", "", "0", "", "", "", "",""));
                                 for (int i = 0; i < s.length(); i++) {
                                     JSONObject res = (JSONObject) s.get(i);
                                     System.out.println(res);
@@ -486,6 +520,7 @@ public class Bundle_Selection_Activity extends AppCompatActivity {
                                     String rework_state = res.getString("reworkState");
                                     String defected_pieces =  res.getString("defectedPieces");
                                     String rejectedPieces =  res.getString("rejectedPieces");
+                                    String size =  res.getString("size");
 
                                     if (rework_state.equals("-1")) {
                                         bundle_status = "NOT CHECKED";
@@ -496,13 +531,13 @@ public class Bundle_Selection_Activity extends AppCompatActivity {
                                     if (rework_state.equals("1")) {
                                         bundle_status = "REWORKED";
                                     }
-                                    bundle_list.add(new bundle_model(bundle_code, bundle_status, bundle_id, bundle_qty, defected_pieces, rejectedPieces, rework_state, ""));
+                                    bundle_list.add(new bundle_model(bundle_code, bundle_status, bundle_id, bundle_qty, defected_pieces, rejectedPieces, rework_state, "",size));
                                 }
-                                ArrayAdapter<bundle_model> dataAdapter = new ArrayAdapter<>(Bundle_Selection_Activity.this, android.R.layout.simple_spinner_item, bundle_list);
-                                dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-                                bundle_spinner.setAdapter(dataAdapter);
-                                hideLoader();
+//                                ArrayAdapter<bundle_model> dataAdapter = new ArrayAdapter<>(Bundle_Selection_Activity.this, android.R.layout.simple_spinner_item, bundle_list);
+//                                dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+//                                bundle_spinner.setAdapter(dataAdapter);
 
+                                fetch_size();
                                 hideLoader();
                             } else {
                                 hideLoader();
@@ -535,9 +570,10 @@ public class Bundle_Selection_Activity extends AppCompatActivity {
     }
     public void fetch_job_card_data(final String ItemID, final String user_permission_id, final String user_id ,final lines_model Line) {
         final HashMap<String, String> params = new HashMap<String, String>();
-        params.put("bundleID", ItemID);
-        params.put("userID", user_id);
-        params.put("lineID", Line.getLine_id());
+        System.out.println("ItemID======"+ItemID);
+        params.put("tagID", ItemID);
+//        params.put("userID", user_id);
+//        params.put("lineID", Line.getLine_id());
         RequestQueue queue = Volley.newRequestQueue(getApplicationContext());
         JsonObjectRequest req = new JsonObjectRequest(Request.Method.POST, ip.getIp() + api.getDetailsForBundleCard, new JSONObject(params),
                 new Response.Listener<JSONObject>() {
@@ -549,20 +585,20 @@ public class Bundle_Selection_Activity extends AppCompatActivity {
                             if (error.equals("0")) {
                                 JSONObject  s = response.getJSONObject("data");
                                 System.out.println(s);
-                                String orderID = s.getString("OrderID");
-                                String style = s.getString("StyleCode");
-                                String orderCode = s.getString("OrderCode");
-                                final String size_id = s.getString("SizeID");
-                                final String size_code = s.getString("SizeID");
-                                String color = s.getString("Color");
-                                final String lotCode = s.getString("JobCardNo");
-                                String bundleID = s.getString("BundleID");
-                                String bundleCode = s.getString("BundleCode");
-                                String bundleQuantity = s.getString("BundleQuantity");
-                                String endlineSessionId = s.getString("EndLineSessionID");
-                                String reworkState = s.getString("ReworkState");
-                                String faultyPieces = s.getString("DefectedPieces");
-                                String rejectedPieces = s.getString("RejectedPieces");
+                                String orderID = s.getString("orderID");
+                                String style = s.getString("styleCode");
+                                String orderCode = s.getString("orderCode");
+                                final String size_id = s.getString("size");
+                                final String size_code = s.getString("size");
+                                String color = s.getString("color");
+                                final String lotCode = s.getString("cutJobCode");
+                                String bundleID = s.getString("cutReportID");
+                                String bundleCode = s.getString("bundleCode");
+                                String bundleQuantity = s.getString("bundleQuantity");
+                                String endlineSessionId = s.getString("endLineSessionID");
+                                String reworkState = s.getString("reworkState");
+                                String faultyPieces = s.getString("defectedPieces");
+                                String rejectedPieces = s.getString("rejectedPieces");
                                 String bundle_status = "";
                                 if (reworkState.equals("-1")) {
                                     bundle_status = "NOT CHECKED";
@@ -574,7 +610,7 @@ public class Bundle_Selection_Activity extends AppCompatActivity {
                                     bundle_status = "REWORKED";
                                 }
                                 final order_model PO = new order_model(orderID, orderCode, color, size_code, style);
-                                final bundle_model Bundle = new bundle_model(bundleCode, bundle_status, bundleID, bundleQuantity, faultyPieces, rejectedPieces, reworkState, endlineSessionId);
+                                final bundle_model Bundle = new bundle_model(bundleCode, bundle_status, bundleID, bundleQuantity, faultyPieces, rejectedPieces, reworkState, endlineSessionId, size_code );
                                 bundle_list.add(Bundle);
                                 if (reworkState.equals("-1")) {
                                     Bundle.setRework_state("0");
@@ -588,7 +624,7 @@ public class Bundle_Selection_Activity extends AppCompatActivity {
                                     lists_bundle.putSerializable("Faults_List", fault_list);
                                     intent.putExtra("Lists", lists_bundle);
                                     intent.putExtra("Lot", lotCode);
-                                    intent.putExtra("Bundle", Bundle);
+                                    intent.putExtra("Bundle", Bundle.getBundle_code());
                                     intent.putExtra("Session_id", Bundle.getSession_id());
                                     startActivity(intent);
                                 } else if (reworkState.equals("0")) {
@@ -608,7 +644,7 @@ public class Bundle_Selection_Activity extends AppCompatActivity {
                                                     Bundle lists_bundle = new Bundle();
                                                     lists_bundle.putSerializable("Faults_List", fault_list);
                                                     intent.putExtra("Lists", lists_bundle);
-                                                    intent.putExtra("Bundle", Bundle);
+                                                    intent.putExtra("Bundle", Bundle.getBundle_code());
                                                     intent.putExtra("Session_id", Bundle.getSession_id());
                                                     startActivity(intent);
                                                 }
@@ -668,24 +704,27 @@ public class Bundle_Selection_Activity extends AppCompatActivity {
     public void endline_session_login(final String user_permission_id, final lines_model Line, final order_model PO, final String Lot, final bundle_model Bundle) {
     showLoader();
         final HashMap<String, String> params = new HashMap<String, String>();
-        params.put("bundleID", Bundle.getBundle_id());
         params.put("userID", user_id);
         params.put("lineID", Line.getLine_id());
         params.put("reworkState", Bundle.getRework_state());
         params.put("orderID", PO.getOrder_id());
+        params.put("allowedModuleID", allowed_module_id);
+        params.put("rejectedPieces", Bundle.getRejected_pieces());
+        params.put("defectedPieces", Bundle.getFaulty_pieces());
+        params.put("cutReportID", Bundle.getBundle_id());
         RequestQueue queue = Volley.newRequestQueue(getApplicationContext());
         JsonObjectRequest req = new JsonObjectRequest(Request.Method.POST, ip.getIp() + api.endline_session, new JSONObject(params),
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
                         try {
+                            System.out.println("===="+response);
                             String error = response.getString("errorNo");
                             String desc = response.getString("errorDescription");
-                            System.out.println(response);
+
                             if (error.equals("0")) {
                                 hideLoader();
-                                JSONObject s = response.getJSONObject("data");
-                                String session_id = s.getString("EndlineSessionID");
+                                String session_id = response.getString("endLineSessionID");
                                 Intent intent = new Intent(Bundle_Selection_Activity.this, Fault_Submission_Activity.class);
                                 intent.putExtra("PO", PO);
                                 intent.putExtra("Line", Line);
