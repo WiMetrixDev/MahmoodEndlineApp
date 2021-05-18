@@ -39,6 +39,7 @@ import com.example.endline.models.fault_model;
 import com.example.endline.models.lines_model;
 import com.example.endline.models.order_model;
 import com.example.endline.models.size_model;
+import com.example.endline.utils.Converter;
 import com.toptoche.searchablespinnerlibrary.SearchableSpinner;
 
 import org.json.JSONArray;
@@ -46,6 +47,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 
 public class Bundle_Selection_Activity extends AppCompatActivity {
@@ -199,13 +201,15 @@ public class Bundle_Selection_Activity extends AppCompatActivity {
             try {
                 mfc.connect();
                 boolean auth;
-                int bIndex = 1;
-                auth = mfc.authenticateSectorWithKeyA(0, MifareClassic.KEY_DEFAULT);
+                int bIndex = 5;
+                auth = mfc.authenticateSectorWithKeyA(1, MifareClassic.KEY_DEFAULT);
                 if (auth) {
                     data = mfc.readBlock(bIndex);
-                    int card_type = data[0];
-                    if (card_type == 7) {
-                        int card_id = ((0xFF & data[4]) << 24) | ((0xFF & data[3]) << 16) | ((0xFF & data[2]) << 8) | ((0xFF & data[1]));
+                    String readData = Converter.byteArrayToHexString(data);
+                    int card_type = Integer.parseInt(readData.substring(9,10));
+                    if (card_type == 0) {
+                        int card_id = ((0xFF & data[3]) << 24) | ((0xFF & data[2]) << 16) | ((0xFF & data[1]) << 8) | ((0xFF & data[0]));
+                        System.out.println("card id: "+card_id);
                         fetch_job_card_data(String.valueOf(card_id), allowed_module_id,user_id,Lines_extra);
                     } else {
                         Toast.makeText(getApplicationContext(), "Invalid Card Type! " + card_type,
@@ -600,6 +604,7 @@ public class Bundle_Selection_Activity extends AppCompatActivity {
                                 String faultyPieces = s.getString("defectedPieces");
                                 String rejectedPieces = s.getString("rejectedPieces");
                                 String bundle_status = "";
+                                System.out.println("b==="+bundleCode);
                                 if (reworkState.equals("-1")) {
                                     bundle_status = "NOT CHECKED";
                                 }
@@ -644,7 +649,7 @@ public class Bundle_Selection_Activity extends AppCompatActivity {
                                                     Bundle lists_bundle = new Bundle();
                                                     lists_bundle.putSerializable("Faults_List", fault_list);
                                                     intent.putExtra("Lists", lists_bundle);
-                                                    intent.putExtra("Bundle", Bundle.getBundle_code());
+                                                    intent.putExtra("Bundle", Bundle);
                                                     intent.putExtra("Session_id", Bundle.getSession_id());
                                                     startActivity(intent);
                                                 }

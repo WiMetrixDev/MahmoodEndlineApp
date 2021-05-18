@@ -107,6 +107,17 @@
                 android:fontFamily="@font/futura_hv_bt_heavy"
                 android:text="Submit"
                 android:textColor="#fff" />
+
+            <Button
+                android:id="@+id/logoutbtn"
+                android:layout_width="200dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="30dp"
+                android:background="@drawable/roundedbutton"
+                android:fontFamily="@font/futura_hv_bt_heavy"
+                android:text="Log Out"
+                android:textColor="#fff" />
         </LinearLayout>
     </ScrollView>
 </RelativeLayout>

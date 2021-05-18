@@ -5,6 +5,7 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.AdapterView;
@@ -25,6 +26,7 @@ import com.example.endline.includes.Api_files;
 import com.example.endline.includes.IP;
 import com.example.endline.models.fault_model;
 import com.example.endline.models.lines_model;
+import com.example.endline.models.module_model;
 import com.toptoche.searchablespinnerlibrary.SearchableSpinner;
 
 import org.json.JSONArray;
@@ -40,6 +42,7 @@ public class Line_Activity extends AppCompatActivity {
     ProgressDialog nDialog;
     SearchableSpinner lines_spinner;
     Button submitbtn;
+    Button logoutbtn;
     IP ip;
     Api_files api = new Api_files();
 
@@ -59,6 +62,7 @@ public class Line_Activity extends AppCompatActivity {
     public void layout_views() {
         submitbtn = findViewById(R.id.submitbtn);
         lines_spinner = findViewById(R.id.spinner_line);
+        logoutbtn = findViewById(R.id.logoutbtn);
     }
 
     public void layout_listeners() {
@@ -73,6 +77,22 @@ public class Line_Activity extends AppCompatActivity {
                 }
             }
         });
+        logoutbtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                logOut();
+            }
+        });
+    }
+
+
+    public void logOut(){
+        SharedPreferences prefs = getApplicationContext().getSharedPreferences("your_prefs", Activity.MODE_PRIVATE);
+        prefs.edit().remove("username").commit();
+        prefs.edit().remove("password").commit();
+        Intent intent = new Intent(Line_Activity.this, Singup_Activity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
     }
 
     public void showLoader() {
