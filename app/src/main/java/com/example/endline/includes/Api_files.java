@@ -23,4 +23,6 @@ public class Api_files {
     public String getDetailsForBundleCard = "/SQMS/Endline/getBundlesForTagID";
 
     public String fetch_cut_history_crID_section = "Endline/getHistoryForCRIDSection.php";
+
+    public String get_latest_version = "/Versions/UpdateVersion/getVersion";
 }

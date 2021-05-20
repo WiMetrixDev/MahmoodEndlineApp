@@ -12,6 +12,7 @@ import android.text.InputType;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.DefaultRetryPolicy;
@@ -42,6 +43,7 @@ public class Singup_Activity extends AppCompatActivity {
     Button btn_sign_in;
     Button btn_set_ip;
     ProgressDialog nDialog;
+    TextView app_ver;
     IP ip;
     ArrayList<activity_model> activity_list = new ArrayList<>();
     Api_files api = new Api_files();
@@ -67,6 +69,8 @@ public class Singup_Activity extends AppCompatActivity {
         text_password = findViewById(R.id.password);
         btn_sign_in = findViewById(R.id.signinbtn);
         btn_set_ip = findViewById(R.id.setIp);
+        app_ver  =findViewById(R.id.app_ver);
+        app_ver.setText("V "+BuildConfig.VERSION_NAME);
     }
 
     public void get_extras() {

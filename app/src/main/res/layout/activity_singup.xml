@@ -14,7 +14,7 @@
         android:layout_above="@+id/userinfolayout"
         android:layout_centerHorizontal="true"
         android:src="@drawable/logo"
-        android:contentDescription="@string/logo" />
+        />
 
     <LinearLayout
         android:id="@+id/userinfolayout"
@@ -79,6 +79,15 @@
             android:text="@string/set_ip"
             android:textColor="#fff"
             android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/app_ver"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/futura_hv_bt_light"
+            android:padding="20dp"
+            android:text=""
+            android:textSize="15sp" />
     </LinearLayout>
 
 </RelativeLayout>
