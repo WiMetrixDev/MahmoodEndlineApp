@@ -9,6 +9,7 @@ import android.os.Message;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.example.endline.utils.Converter;
 import com.rfid.reader.Reader;
 
 import org.jetbrains.annotations.Nullable;
@@ -56,22 +57,31 @@ public class NFCReaderService extends Service {
         @Override
         public void run() {
             while (isRunning) {
+                try {
                 byte[] key = {(byte)0xFF, (byte)0xFF, (byte)0xFF, (byte)0xFF, (byte)0xFF, (byte)0xFF};
                 byte[] rData = new byte[48];
                 byte[] errCode = new byte[1];
                 long startMs = System.currentTimeMillis();
-                int result = reader.Iso14443a_Read((byte) 0x01, (byte)0x03, (byte) 0x00, key, rData, errCode);
+                int result = reader.Iso14443a_Read((byte) 0x05, (byte)0x03, (byte) 0x00, key, rData, errCode);
                 if (result == 0){
                     StringBuilder strData = new StringBuilder();
                     for (int i = 0; i < 16; i++) {
                         strData.append(String.format("%02X ", rData[i]));
                     }
-                    int card_id = ((0xFF & rData[4]) << 24) | ((0xFF & rData[3]) << 16) | ((0xFF & rData[2]) << 8) | ((0xFF & rData[1]));
-                    int card_type = rData[0];
+                    int card_id = ((0xFF & rData[3]) << 24) | ((0xFF & rData[2]) << 16) | ((0xFF & rData[1]) << 8) | ((0xFF & rData[0]));
+                    String readData = Converter.byteArrayToHexString(rData);
+                    int card_type = Integer.parseInt(readData.substring(9,10));
+                    if(card_type == 0 ){
+                        card_id = Integer.parseInt(readData.substring(0, 8));
+                    }
+
                     Intent broadCastIntent = new Intent("nfc.tag");
                     broadCastIntent.putExtra("TagNumber", card_id);
                     broadCastIntent.putExtra("TagType", card_type);
                     sendBroadcast(broadCastIntent);
+                }
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
                 try {
                     Thread.sleep(2000);

@@ -16,7 +16,8 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-public class UpdateApp extends AsyncTask<String,Integer ,Void> {
+
+public class UpdateApp extends AsyncTask<String, Integer, Void> {
     private Context context;
     private File outputFile;
     File file;
@@ -27,7 +28,7 @@ public class UpdateApp extends AsyncTask<String,Integer ,Void> {
         dialog = new ProgressDialog(activity);
     }
 
-    public void setContext(Context contextf){
+    public void setContext(Context contextf) {
         context = contextf;
     }
 
@@ -54,7 +55,7 @@ public class UpdateApp extends AsyncTask<String,Integer ,Void> {
             file = new File(destination);
             file.mkdirs();
             outputFile = new File(file, "MahmoodEndline.apk");
-            if(outputFile.exists()){
+            if (outputFile.exists()) {
                 outputFile.delete();
             }
             FileOutputStream fos = new FileOutputStream(outputFile);
@@ -83,16 +84,16 @@ public class UpdateApp extends AsyncTask<String,Integer ,Void> {
             dialog.dismiss();
         }
 
-        Uri fileUri=FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID+".fileprovider",outputFile );
+        Uri fileUri = FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID + ".fileprovider", outputFile);
 
-        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.N){
+        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             Intent intent = new Intent(Intent.ACTION_VIEW, fileUri);
             intent.putExtra(Intent.EXTRA_NOT_UNKNOWN_SOURCE, true);
             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
             intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
             context.startActivity(intent);
 
-        } else{
+        } else {
             String destination = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS) + "/";
             String fileName = "MahmoodEndline.apk";
             destination += fileName;
@@ -100,7 +101,7 @@ public class UpdateApp extends AsyncTask<String,Integer ,Void> {
 
             Intent install = new Intent(Intent.ACTION_VIEW);
             install.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-            install.setDataAndType(uri,"application/vnd.android.package-archive");
+            install.setDataAndType(uri, "application/vnd.android.package-archive");
             context.startActivity(install);
         }
     }

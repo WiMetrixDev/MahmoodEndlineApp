@@ -1,58 +1,57 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@drawable/buttomline"
     android:orientation="horizontal"
-    android:weightSum="4"
     android:paddingTop="@dimen/fault_item_top_padding"
-    android:background="@drawable/buttomline">
-<TextView
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:text="VS001"
-    android:id="@+id/itemid"
-    android:layout_weight="0"
-    android:paddingLeft="10dp"
-    android:fontFamily="@font/futura_hv_bt_light"
-    android:textSize="25dp"
-    android:textColor="#000"
-    />
-    <TextView
-        android:layout_width="200dp"
-        android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp"
-        android:layout_height="wrap_content"
-        android:text="Skipped stitch "
-        android:id="@+id/itemtext"
-        android:maxLength="25"
-        android:fontFamily="@font/futura_hv_bt_light"
-        android:textSize="25dp"
-        android:layout_weight="3"
-        android:textColor="#000"
-        />
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp"
-        android:layout_weight="0"
-        android:layout_height="wrap_content"
-        android:text="Count:"
-        android:fontFamily="@font/futura_hv_bt_light"
-        android:textSize="25dp"
-        android:textColor="#000"
-        />
+    android:weightSum="4">
 
     <TextView
-        android:layout_width="30dp"
+        android:id="@+id/itemid"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="0"
+        android:fontFamily="@font/futura_hv_bt_light"
+        android:paddingLeft="10dp"
+        android:text="VS001"
+        android:textColor="#000"
+        android:textSize="25dp" />
+
+    <TextView
+        android:id="@+id/itemtext"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
         android:layout_marginLeft="10dp"
         android:layout_marginRight="10dp"
-        android:layout_height="wrap_content"
-        android:text="0"
-        android:layout_weight="0"
-        android:id="@+id/itemCount"
+        android:layout_weight="3"
         android:fontFamily="@font/futura_hv_bt_light"
-        android:textSize="25dp"
+        android:maxLength="25"
+        android:text="Skipped stitch "
         android:textColor="#000"
-        />
+        android:textSize="25dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:layout_weight="0"
+        android:fontFamily="@font/futura_hv_bt_light"
+        android:text="Count:"
+        android:textColor="#000"
+        android:textSize="25dp" />
+
+    <TextView
+        android:id="@+id/itemCount"
+        android:layout_width="30dp"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:layout_weight="0"
+        android:fontFamily="@font/futura_hv_bt_light"
+        android:text="0"
+        android:textColor="#000"
+        android:textSize="25dp" />
 </LinearLayout>

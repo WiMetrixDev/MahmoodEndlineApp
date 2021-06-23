@@ -28,11 +28,11 @@
   <uses-permission android:name="android.permission.NFC" />
 
   <application android:theme="@style/AppTheme" android:supportsRtl="true" android:roundIcon="@mipmap/ic_launcher_round" android:label="@string/app_name" android:icon="@mipmap/ic_launcher" android:allowBackup="true">
-<!--    <service android:name=".Reader.NFCReaderService" android:exported="false">-->
-<!--      <intent-filter>-->
-<!--        <action android:name="nfc.tag"/>-->
-<!--      </intent-filter>-->
-<!--    </service>-->
+    <service android:name=".Reader.NFCReaderService" android:enabled="true" android:exported="false">
+      <intent-filter>
+        <action android:name="nfc.tag"/>
+      </intent-filter>
+    </service>
   <activity android:name=".Fault_Submission_Activity"/>
   <activity android:name=".Singup_Activity"/>
   <activity android:name=".Bundle_Selection_Activity"/>

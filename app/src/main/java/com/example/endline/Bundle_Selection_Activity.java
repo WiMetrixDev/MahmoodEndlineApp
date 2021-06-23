@@ -31,6 +31,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.example.endline.Reader.NFCReaderService;
 import com.example.endline.includes.Api_files;
 import com.example.endline.includes.IP;
 import com.example.endline.models.bundle_model;
@@ -76,8 +77,8 @@ public class Bundle_Selection_Activity extends AppCompatActivity {
     TextView text_Line;
     IP ip;
     Api_files api = new Api_files();
-    //Receiver receiver = new Receiver();
-    //Intent reader_service;
+    Receiver receiver = new Receiver();
+    Intent reader_service;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -103,12 +104,12 @@ public class Bundle_Selection_Activity extends AppCompatActivity {
         layout_listeners();
         layout_spinners();
         fetch_orders();
-        //IntentFilter filter = new IntentFilter("nfc.tag");
-        //getApplicationContext().registerReceiver(receiver, filter);
+
         mNfcAdapter = NfcAdapter.getDefaultAdapter(this);
         if (mNfcAdapter == null) {
             // Stop here, we definitely need NFC
-            Toast.makeText(this, "This device doesn't support NFC.", Toast.LENGTH_LONG).show();
+            IntentFilter filter = new IntentFilter("nfc.tag");
+            getApplicationContext().registerReceiver(receiver, filter);
         } else {
             if (!mNfcAdapter.isEnabled()) {
                 // Stop here, we definitely need NFC
@@ -131,7 +132,7 @@ public class Bundle_Selection_Activity extends AppCompatActivity {
             int TagNumber = arg1.getIntExtra("TagNumber", -1);
             int TagType = arg1.getIntExtra("TagType", -1);
             try {
-                if(TagType == 7){
+                if(TagType == 0){
                     fetch_job_card_data(String.valueOf(TagNumber), allowed_module_id,user_id, Lines_extra);
                 } else {
                     Toast.makeText(getApplicationContext(), "Invalid Card Type! " + TagType,
@@ -154,10 +155,15 @@ public class Bundle_Selection_Activity extends AppCompatActivity {
                 fetch_bundle(PO.getOrder_id(), Lot.cut_job_id);
         }
         try {
-            //startService(reader_service);
-            //IntentFilter filter = new IntentFilter("nfc.tag");
-            //getApplicationContext().registerReceiver(receiver, filter);
-            mNfcAdapter.enableForegroundDispatch(this, mPendingIntent, mFilters, mTechLists);
+            if (mNfcAdapter == null) {
+                // Stop here, we definitely need NFC
+                startService(new Intent(this, NFCReaderService.class));
+                IntentFilter filter = new IntentFilter("nfc.tag");
+                getApplicationContext().registerReceiver(receiver, filter);
+            }
+            else {
+                mNfcAdapter.enableForegroundDispatch(this, mPendingIntent, mFilters, mTechLists);
+            }
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
@@ -167,7 +173,7 @@ public class Bundle_Selection_Activity extends AppCompatActivity {
     protected void onPause() {
         super.onPause();
         try {
-            //getApplicationContext().unregisterReceiver(receiver);
+            getApplicationContext().unregisterReceiver(receiver);
         } catch (Exception ignored){
 
         }
@@ -177,11 +183,11 @@ public class Bundle_Selection_Activity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         try {
-            //getApplicationContext().unregisterReceiver(receiver);
+            getApplicationContext().unregisterReceiver(receiver);
         } catch (Exception ignored){
 
         }
-        //stopService(reader_service);
+        stopService(new Intent(this, NFCReaderService.class));
     }
 
     @Override
@@ -207,9 +213,10 @@ public class Bundle_Selection_Activity extends AppCompatActivity {
                     data = mfc.readBlock(bIndex);
                     String readData = Converter.byteArrayToHexString(data);
                     int card_type = Integer.parseInt(readData.substring(9,10));
+                    int card_id = ((0xFF & data[3]) << 24) | ((0xFF & data[2]) << 16) | ((0xFF & data[1]) << 8) | ((0xFF & data[0]));
                     if (card_type == 0) {
-                        int card_id = ((0xFF & data[3]) << 24) | ((0xFF & data[2]) << 16) | ((0xFF & data[1]) << 8) | ((0xFF & data[0]));
-                        System.out.println("card id: "+card_id);
+                        card_id = Integer.parseInt(readData.substring(0, 8));
+                        System.out.println("tagID "+card_id);
                         fetch_job_card_data(String.valueOf(card_id), allowed_module_id,user_id,Lines_extra);
                     } else {
                         Toast.makeText(getApplicationContext(), "Invalid Card Type! " + card_type,
@@ -217,8 +224,8 @@ public class Bundle_Selection_Activity extends AppCompatActivity {
                     }
                 }
             } catch (Exception e) {
-//                Toast.makeText(getApplicationContext(), "Card Read Exception! " + e.getMessage(),
-//                        Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), "Card Read Exception! " + e.getMessage(),
+                        Toast.LENGTH_SHORT).show();
             }
 
         }
@@ -513,7 +520,7 @@ public class Bundle_Selection_Activity extends AppCompatActivity {
                             String desc = response.getString("errorDescription");
                             if (error.equals("0")) {
                                 JSONArray s = response.getJSONArray("data");
-                                bundle_list.add(new bundle_model("", "Please Choose", "", "0", "", "", "", "",""));
+                                bundle_list.add(new bundle_model("", "Please Choose", "", "0", "", "", "", "","",""));
                                 for (int i = 0; i < s.length(); i++) {
                                     JSONObject res = (JSONObject) s.get(i);
                                     System.out.println(res);
@@ -525,6 +532,7 @@ public class Bundle_Selection_Activity extends AppCompatActivity {
                                     String defected_pieces =  res.getString("defectedPieces");
                                     String rejectedPieces =  res.getString("rejectedPieces");
                                     String size =  res.getString("size");
+                                    String shade =  res.getString("shade");
 
                                     if (rework_state.equals("-1")) {
                                         bundle_status = "NOT CHECKED";
@@ -535,7 +543,7 @@ public class Bundle_Selection_Activity extends AppCompatActivity {
                                     if (rework_state.equals("1")) {
                                         bundle_status = "REWORKED";
                                     }
-                                    bundle_list.add(new bundle_model(bundle_code, bundle_status, bundle_id, bundle_qty, defected_pieces, rejectedPieces, rework_state, "",size));
+                                    bundle_list.add(new bundle_model(bundle_code, bundle_status, bundle_id, bundle_qty, defected_pieces, rejectedPieces, rework_state, "",size,shade));
                                 }
 //                                ArrayAdapter<bundle_model> dataAdapter = new ArrayAdapter<>(Bundle_Selection_Activity.this, android.R.layout.simple_spinner_item, bundle_list);
 //                                dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -576,8 +584,9 @@ public class Bundle_Selection_Activity extends AppCompatActivity {
         final HashMap<String, String> params = new HashMap<String, String>();
         System.out.println("ItemID======"+ItemID);
         params.put("tagID", ItemID);
-//        params.put("userID", user_id);
-//        params.put("lineID", Line.getLine_id());
+        params.put("userID", user_id);
+        params.put("lineID", Line.getLine_id());
+        params.put("allowedModuleID", allowed_module_id);
         RequestQueue queue = Volley.newRequestQueue(getApplicationContext());
         JsonObjectRequest req = new JsonObjectRequest(Request.Method.POST, ip.getIp() + api.getDetailsForBundleCard, new JSONObject(params),
                 new Response.Listener<JSONObject>() {
@@ -589,9 +598,9 @@ public class Bundle_Selection_Activity extends AppCompatActivity {
                             if (error.equals("0")) {
                                 JSONObject  s = response.getJSONObject("data");
                                 System.out.println(s);
-                                String orderID = s.getString("orderID");
+                                String orderID = s.getString("productionOrderID");
                                 String style = s.getString("styleCode");
-                                String orderCode = s.getString("orderCode");
+                                String orderCode = s.getString("productionOrderCode");
                                 final String size_id = s.getString("size");
                                 final String size_code = s.getString("size");
                                 String color = s.getString("color");
@@ -603,6 +612,8 @@ public class Bundle_Selection_Activity extends AppCompatActivity {
                                 String reworkState = s.getString("reworkState");
                                 String faultyPieces = s.getString("defectedPieces");
                                 String rejectedPieces = s.getString("rejectedPieces");
+                                String shade = s.getString("shade");
+
                                 String bundle_status = "";
                                 System.out.println("b==="+bundleCode);
                                 if (reworkState.equals("-1")) {
@@ -615,7 +626,7 @@ public class Bundle_Selection_Activity extends AppCompatActivity {
                                     bundle_status = "REWORKED";
                                 }
                                 final order_model PO = new order_model(orderID, orderCode, color, size_code, style);
-                                final bundle_model Bundle = new bundle_model(bundleCode, bundle_status, bundleID, bundleQuantity, faultyPieces, rejectedPieces, reworkState, endlineSessionId, size_code );
+                                final bundle_model Bundle = new bundle_model(bundleCode, bundle_status, bundleID, bundleQuantity, faultyPieces, rejectedPieces, reworkState, endlineSessionId, size_code,shade );
                                 bundle_list.add(Bundle);
                                 if (reworkState.equals("-1")) {
                                     Bundle.setRework_state("0");
@@ -629,7 +640,7 @@ public class Bundle_Selection_Activity extends AppCompatActivity {
                                     lists_bundle.putSerializable("Faults_List", fault_list);
                                     intent.putExtra("Lists", lists_bundle);
                                     intent.putExtra("Lot", lotCode);
-                                    intent.putExtra("Bundle", Bundle.getBundle_code());
+                                    intent.putExtra("Bundle", Bundle);
                                     intent.putExtra("Session_id", Bundle.getSession_id());
                                     startActivity(intent);
                                 } else if (reworkState.equals("0")) {
