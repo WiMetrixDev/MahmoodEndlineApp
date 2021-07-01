@@ -11,6 +11,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.DefaultRetryPolicy;
@@ -27,6 +28,7 @@ import com.example.endline.includes.IP;
 import com.example.endline.models.fault_model;
 import com.example.endline.models.lines_model;
 import com.example.endline.models.module_model;
+import com.example.endline.models.section_model;
 import com.toptoche.searchablespinnerlibrary.SearchableSpinner;
 
 import org.json.JSONArray;
@@ -39,8 +41,10 @@ import java.util.HashMap;
 public class Line_Activity extends AppCompatActivity {
     ArrayList<lines_model> line_list = new ArrayList<>();
     ArrayList<fault_model> fault_list = new ArrayList<>();
+    section_model section;
     ProgressDialog nDialog;
     SearchableSpinner lines_spinner;
+    TextView text_Section;
     Button submitbtn;
     Button logoutbtn;
     IP ip;
@@ -52,6 +56,7 @@ public class Line_Activity extends AppCompatActivity {
         setContentView(R.layout.activity_section);
         SharedPreferences sp = getSharedPreferences("your_prefs", Activity.MODE_PRIVATE);
         String IP = sp.getString("IP", null);
+        section = new section_model(sp.getString("sectionID", null),sp.getString("sectionCode", null));
         ip = new IP(IP);
         layout_views();
         layout_listeners();
@@ -63,6 +68,8 @@ public class Line_Activity extends AppCompatActivity {
         submitbtn = findViewById(R.id.submitbtn);
         lines_spinner = findViewById(R.id.spinner_line);
         logoutbtn = findViewById(R.id.logoutbtn);
+        text_Section = findViewById(R.id.text_Section);
+        text_Section.setText(section.getSection_code());
     }
 
     public void layout_listeners() {
@@ -90,6 +97,8 @@ public class Line_Activity extends AppCompatActivity {
         SharedPreferences prefs = getApplicationContext().getSharedPreferences("your_prefs", Activity.MODE_PRIVATE);
         prefs.edit().remove("username").commit();
         prefs.edit().remove("password").commit();
+        prefs.edit().remove("sectionID").commit();
+        prefs.edit().remove("sectionCode").commit();
         Intent intent = new Intent(Line_Activity.this, Singup_Activity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
@@ -118,7 +127,7 @@ public class Line_Activity extends AppCompatActivity {
                     @Override
                     public void onResponse(JSONObject response) {
                         try {
-                            line_list.add(new lines_model("", "Please choose"));
+                            line_list.add(new lines_model("", "Please choose",""));
                             String error = response.getString("errorNo");
                             String desc = response.getString("errorDescription");
                             System.out.println("error " + error);
@@ -128,7 +137,8 @@ public class Line_Activity extends AppCompatActivity {
                                     JSONObject res = (JSONObject) s.get(i);
                                     String line_id = res.getString("lineID");
                                     String line_code = res.getString("lineCode");
-                                    line_list.add(new lines_model(line_id, line_code));
+                                    String line_desc = res.getString("lineDescription");
+                                    line_list.add(new lines_model(line_id, line_code,line_desc));
                                 }
                                 ArrayAdapter<lines_model> dataAdapter = new ArrayAdapter<>(Line_Activity.this, android.R.layout.simple_spinner_item, line_list);
                                 dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -165,9 +175,10 @@ public class Line_Activity extends AppCompatActivity {
         showLoader();
         fault_list.clear();
         HashMap<String, String> params = new HashMap<String, String>();
+        params.put("sectionID", section.section_id);
         final ArrayList<String> faultTrack = new ArrayList<>();
         RequestQueue queue = Volley.newRequestQueue(getApplicationContext());
-        JsonObjectRequest req = new JsonObjectRequest(Request.Method.GET, ip.getIp() + api.get_faults, new JSONObject(params),
+        JsonObjectRequest req = new JsonObjectRequest(Request.Method.POST, ip.getIp() + api.get_faults, new JSONObject(params),
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {

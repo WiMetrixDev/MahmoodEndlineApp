@@ -34,6 +34,7 @@ import com.example.endline.models.fault_model;
 import com.example.endline.models.lines_model;
 import com.example.endline.models.operation_model;
 import com.example.endline.models.order_model;
+import com.example.endline.models.section_model;
 import com.example.endline.models.size_model;
 import com.google.gson.JsonObject;
 import com.toptoche.searchablespinnerlibrary.SearchableSpinner;
@@ -65,6 +66,7 @@ public class Fault_Submission_Activity extends AppCompatActivity {
     ArrayList<fault_model> history_fault_list = new ArrayList<>();
     ArrayList<operation_model> operation_list = new ArrayList<>();
     IP ip;
+    section_model section;
     NumberPicker fault_counter;
     Api_files api = new Api_files();
     LinearLayout fault_history_layout;
@@ -79,6 +81,8 @@ public class Fault_Submission_Activity extends AppCompatActivity {
     String Session_id;
     String is_quality_checked = "0";
 
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -88,6 +92,7 @@ public class Fault_Submission_Activity extends AppCompatActivity {
         SharedPreferences sp = getSharedPreferences("your_prefs", Activity.MODE_PRIVATE);
         String IP = sp.getString("IP", null);
         ip = new IP(IP);
+        section = new section_model(sp.getString("sectionID", null), sp.getString("sectionCode", null));
         get_views();
         layout_listeners();
         get_extras();
@@ -273,7 +278,7 @@ public class Fault_Submission_Activity extends AppCompatActivity {
         final HashMap<String, String> params = new HashMap<>();
         params.put("endLineSessionID", Session_id);
         params.put("bundleScanID", operation.getBundle_scan_id());
-
+        params.put("sectionID", section.section_id);
         JSONObject jsonResult = new JSONObject();
         try {
             jsonResult.accumulate("faultCount", fault.getFault_count());
@@ -377,25 +382,32 @@ public class Fault_Submission_Activity extends AppCompatActivity {
     }
 
     public void onBackPressed() {
-//        Intent openMainActivity = new Intent(Fault_Submission_Activity.this, Bundle_Selection_Activity.class);
-//        openMainActivity.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-//        openMainActivity.putExtra("Line", Lines_extra);
-//        //openMainActivity.putExtra("Section", Section_extra);
-//        openMainActivity.putExtra("PO", PO_extra);
-//        Bundle lists_bundle = new Bundle();
-//        //lists_bundle.putSerializable("Departments_List", department_list);
-//        lists_bundle.putSerializable("Faults_List", fault_list);
-//        openMainActivity.putExtra("Lists", lists_bundle);
-//        startActivityIfNeeded(openMainActivity, 0);
-        Toast.makeText(getApplicationContext(), "Can't go back",
-                Toast.LENGTH_SHORT).show();
+        if (operation_list.size()>1){
+            Toast.makeText(getApplicationContext(), "Can't go back",
+                    Toast.LENGTH_SHORT).show();
+        }
+        else {
+                    Intent openMainActivity = new Intent(Fault_Submission_Activity.this, Bundle_Selection_Activity.class);
+        openMainActivity.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+        openMainActivity.putExtra("Line", Lines_extra);
+        //openMainActivity.putExtra("Section", Section_extra);
+        openMainActivity.putExtra("PO", PO_extra);
+        Bundle lists_bundle = new Bundle();
+        //lists_bundle.putSerializable("Departments_List", department_list);
+        lists_bundle.putSerializable("Faults_List", fault_list);
+        openMainActivity.putExtra("Lists", lists_bundle);
+        startActivityIfNeeded(openMainActivity, 0);
+        }
+
     }
 
     public void fetch_operation() {
         showLoader();
         operation_list.clear();
         final HashMap<String, String> params = new HashMap<>();
-       params.put("bundleID", Bundle_extra.getBundle_id());
+        params.put("bundleID", Bundle_extra.getBundle_id());
+        params.put("sectionID", section.section_id);
+
         RequestQueue queue = Volley.newRequestQueue(getApplicationContext());
 
         JsonObjectRequest req = new JsonObjectRequest(Request.Method.POST, ip.getIp() + api.getOperationWorkerForBundle, new JSONObject(params),

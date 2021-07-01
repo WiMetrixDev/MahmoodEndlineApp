@@ -39,6 +39,7 @@ import com.example.endline.models.cut_job_model;
 import com.example.endline.models.fault_model;
 import com.example.endline.models.lines_model;
 import com.example.endline.models.order_model;
+import com.example.endline.models.section_model;
 import com.example.endline.models.size_model;
 import com.example.endline.utils.Converter;
 import com.toptoche.searchablespinnerlibrary.SearchableSpinner;
@@ -75,7 +76,9 @@ public class Bundle_Selection_Activity extends AppCompatActivity {
     SearchableSpinner spinner_size;
     lines_model Lines_extra;
     TextView text_Line;
+    TextView text_Section;
     IP ip;
+    section_model section;
     Api_files api = new Api_files();
     Receiver receiver = new Receiver();
     Intent reader_service;
@@ -99,6 +102,7 @@ public class Bundle_Selection_Activity extends AppCompatActivity {
         allowed_module_id = sp.getString("allowedModuleID", null);
         user_id = sp.getString("userID", null);
         ip = new IP(IP);
+        section = new section_model(sp.getString("sectionID", null), sp.getString("sectionCode", null));
         get_views();
         get_extras();
         layout_listeners();
@@ -236,6 +240,7 @@ public class Bundle_Selection_Activity extends AppCompatActivity {
         lot_spinner = findViewById(R.id.spinner_lot);
         bundle_spinner = findViewById(R.id.spinner_bundle);
         text_Line = findViewById(R.id.text_Line);
+        text_Section = findViewById(R.id.text_Section);
         spinner_size = findViewById(R.id.spinner_size);
     }
     public void layout_listeners() {
@@ -294,7 +299,8 @@ public class Bundle_Selection_Activity extends AppCompatActivity {
         Lines_extra = (lines_model) i.getSerializableExtra("Line");
         Bundle lists_bundle = i.getBundleExtra("Lists");
         fault_list = (ArrayList<fault_model>) lists_bundle.getSerializable("Faults_List");
-        text_Line.setText(Lines_extra.line_code);
+        text_Line.setText(Lines_extra.line_desc);
+        text_Section.setText(section.getSection_code());
     }
     public void showLoader() {
         nDialog = new ProgressDialog(Bundle_Selection_Activity.this);
@@ -510,6 +516,7 @@ public class Bundle_Selection_Activity extends AppCompatActivity {
         bundle_list.clear();
         final HashMap<String, String> params = new HashMap<String, String>();
         params.put("cutJobID",Lot);
+        params.put("sectionID", section.section_id);
         RequestQueue queue = Volley.newRequestQueue(getApplicationContext());
         JsonObjectRequest req = new JsonObjectRequest(Request.Method.POST, ip.getIp() + api.getBundlesForCutJob, new JSONObject(params),
                 new Response.Listener<JSONObject>() {
@@ -577,8 +584,8 @@ public class Bundle_Selection_Activity extends AppCompatActivity {
                 DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
     }
     public void onBackPressed() {
-        Toast.makeText(getApplicationContext(), "Can not go back!",
-                Toast.LENGTH_SHORT).show();
+        Intent intent = new Intent(this, Line_Activity.class);
+        startActivity(intent);
     }
     public void fetch_job_card_data(final String ItemID, final String user_permission_id, final String user_id ,final lines_model Line) {
         final HashMap<String, String> params = new HashMap<String, String>();
@@ -587,6 +594,7 @@ public class Bundle_Selection_Activity extends AppCompatActivity {
         params.put("userID", user_id);
         params.put("lineID", Line.getLine_id());
         params.put("allowedModuleID", allowed_module_id);
+        params.put("sectionID", section.section_id);
         RequestQueue queue = Volley.newRequestQueue(getApplicationContext());
         JsonObjectRequest req = new JsonObjectRequest(Request.Method.POST, ip.getIp() + api.getDetailsForBundleCard, new JSONObject(params),
                 new Response.Listener<JSONObject>() {
@@ -612,7 +620,8 @@ public class Bundle_Selection_Activity extends AppCompatActivity {
                                 String reworkState = s.getString("reworkState");
                                 String faultyPieces = s.getString("defectedPieces");
                                 String rejectedPieces = s.getString("rejectedPieces");
-                                String shade = s.getString("shade");
+                                //String shade = s.getString("shade");
+                                String shade = "";
 
                                 String bundle_status = "";
                                 System.out.println("b==="+bundleCode);
@@ -728,6 +737,7 @@ public class Bundle_Selection_Activity extends AppCompatActivity {
         params.put("rejectedPieces", Bundle.getRejected_pieces());
         params.put("defectedPieces", Bundle.getFaulty_pieces());
         params.put("cutReportID", Bundle.getBundle_id());
+        params.put("sectionID", section.section_id);
         RequestQueue queue = Volley.newRequestQueue(getApplicationContext());
         JsonObjectRequest req = new JsonObjectRequest(Request.Method.POST, ip.getIp() + api.endline_session, new JSONObject(params),
                 new Response.Listener<JSONObject>() {

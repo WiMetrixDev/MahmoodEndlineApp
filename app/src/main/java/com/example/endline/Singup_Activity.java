@@ -27,6 +27,7 @@ import com.example.endline.includes.Api_files;
 import com.example.endline.includes.IP;
 import com.example.endline.models.activity_model;
 import com.example.endline.models.module_model;
+import com.example.endline.models.section_model;
 import com.google.gson.Gson;
 
 import org.json.JSONArray;
@@ -170,6 +171,8 @@ public class Singup_Activity extends AppCompatActivity {
                                         editor.putString("userID", res.getString("userID"));
                                         editor.putString("allowedModuleID", res.getString("allowedModuleID"));
                                         editor.putString("ModuleName", res.getString("moduleName"));
+                                        editor.putString("sectionID", res.getString("sectionID"));
+                                        editor.putString("sectionCode", res.getString("sectionCode"));
                                         editor.apply();
                                         Intent intent = new Intent(Singup_Activity.this, Line_Activity.class);
                                         intent.putExtra("Activity",new module_model(res.getString("moduleName"),res.getString("allowedModuleID")));
