@@ -13,6 +13,7 @@ import android.nfc.NfcAdapter;
 import android.nfc.Tag;
 import android.nfc.tech.MifareClassic;
 import android.os.Bundle;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -169,7 +170,7 @@ public class Bundle_Selection_Activity extends AppCompatActivity {
                 mNfcAdapter.enableForegroundDispatch(this, mPendingIntent, mFilters, mTechLists);
             }
         } catch (Exception e) {
-            System.out.println(e.getMessage());
+            e.printStackTrace();
         }
     }
 
@@ -177,9 +178,9 @@ public class Bundle_Selection_Activity extends AppCompatActivity {
     protected void onPause() {
         super.onPause();
         try {
-            getApplicationContext().unregisterReceiver(receiver);
+            LocalBroadcastManager.getInstance(this).unregisterReceiver(receiver);
         } catch (Exception ignored){
-
+            ignored.printStackTrace();
         }
     }
 
@@ -187,9 +188,9 @@ public class Bundle_Selection_Activity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         try {
-            getApplicationContext().unregisterReceiver(receiver);
+            LocalBroadcastManager.getInstance(this).unregisterReceiver(receiver);
         } catch (Exception ignored){
-
+            ignored.printStackTrace();
         }
         stopService(new Intent(this, NFCReaderService.class));
     }
@@ -257,6 +258,11 @@ public class Bundle_Selection_Activity extends AppCompatActivity {
                         endline_session_login(allowed_module_id, Lines_extra, PO, Cut, Bundle);
                     } else {
                         if (Bundle.getRework_state().equals("0")) {
+                            if(Bundle.getRejected_pieces().equals("0") && Bundle.getFaulty_pieces().equals("0")){
+                                Toast.makeText(getApplicationContext(), "Bundle was cleared already!",
+                                        Toast.LENGTH_SHORT).show();
+                                return;
+                            }
                             AlertDialog.Builder alertDialog = new AlertDialog.Builder(Bundle_Selection_Activity.this);
                             alertDialog.setMessage("Are you performing REWORK for this bundle?")
                                     .setCancelable(false)
@@ -653,6 +659,11 @@ public class Bundle_Selection_Activity extends AppCompatActivity {
                                     intent.putExtra("Session_id", Bundle.getSession_id());
                                     startActivity(intent);
                                 } else if (reworkState.equals("0")) {
+                                    if(Bundle.getRejected_pieces().equals("0") && Bundle.getFaulty_pieces().equals("0")){
+                                        Toast.makeText(getApplicationContext(), "Bundle was cleared already!",
+                                                Toast.LENGTH_SHORT).show();
+                                        return;
+                                    }
                                     AlertDialog.Builder alertDialog = new AlertDialog.Builder(Bundle_Selection_Activity.this);
                                     alertDialog.setMessage("Are you performing REWORK for this bundle?")
                                             .setCancelable(false)
@@ -747,7 +758,6 @@ public class Bundle_Selection_Activity extends AppCompatActivity {
                             System.out.println("===="+response);
                             String error = response.getString("errorNo");
                             String desc = response.getString("errorDescription");
-
                             if (error.equals("0")) {
                                 hideLoader();
                                 String session_id = response.getString("endLineSessionID");

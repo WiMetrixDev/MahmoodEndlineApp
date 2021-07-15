@@ -550,6 +550,7 @@ public class Fault_Submission_Activity extends AppCompatActivity {
         dialogBuilder.setView(dialogView);
         final NumberPicker faulty_pieces = dialogView.findViewById(R.id.picker_faulty_pieces);
         final NumberPicker rejected_pieces = dialogView.findViewById(R.id.picker_rejected_pieces);
+        faulty_pieces.setMin(1);
         if(!Bundle_extra.getFaulty_pieces().equals("-1")){
             faulty_pieces.setValue(Integer.parseInt(Bundle_extra.getFaulty_pieces()));
         }
