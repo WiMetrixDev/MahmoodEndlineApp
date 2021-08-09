@@ -83,6 +83,7 @@ public class Bundle_Selection_Activity extends AppCompatActivity {
     Api_files api = new Api_files();
     Receiver receiver = new Receiver();
     Intent reader_service;
+    boolean scaner = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -102,6 +103,7 @@ public class Bundle_Selection_Activity extends AppCompatActivity {
         String IP = sp.getString("IP", null);
         allowed_module_id = sp.getString("allowedModuleID", null);
         user_id = sp.getString("userID", null);
+        scaner = true;
         ip = new IP(IP);
         section = new section_model(sp.getString("sectionID", null), sp.getString("sectionCode", null));
         get_views();
@@ -138,7 +140,13 @@ public class Bundle_Selection_Activity extends AppCompatActivity {
             int TagType = arg1.getIntExtra("TagType", -1);
             try {
                 if(TagType == 0){
-                    fetch_job_card_data(String.valueOf(TagNumber), allowed_module_id,user_id, Lines_extra);
+                    if(scaner){
+                        scaner = false;
+                        fetch_job_card_data(String.valueOf(TagNumber), allowed_module_id,user_id,Lines_extra);
+                    }
+                    else {
+                        System.out.println("Skiped");
+                    }
                 } else {
                     Toast.makeText(getApplicationContext(), "Invalid Card Type! " + TagType,
                             Toast.LENGTH_SHORT).show();
@@ -148,6 +156,13 @@ public class Bundle_Selection_Activity extends AppCompatActivity {
                 System.out.println(ex.getMessage());
             }
         }
+    }
+
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        scaner = true;
     }
 
     @Override
@@ -219,10 +234,16 @@ public class Bundle_Selection_Activity extends AppCompatActivity {
                     String readData = Converter.byteArrayToHexString(data);
                     int card_type = Integer.parseInt(readData.substring(9,10));
                     int card_id = ((0xFF & data[3]) << 24) | ((0xFF & data[2]) << 16) | ((0xFF & data[1]) << 8) | ((0xFF & data[0]));
-                    if (card_type == 0) {
-                        card_id = Integer.parseInt(readData.substring(0, 8));
-                        System.out.println("tagID "+card_id);
-                        fetch_job_card_data(String.valueOf(card_id), allowed_module_id,user_id,Lines_extra);
+                    if (card_type == 0 ) {
+                        if(scaner){
+                            scaner = false;
+                            card_id = Integer.parseInt(readData.substring(0, 8));
+                            System.out.println("tagID "+card_id);
+                            fetch_job_card_data(String.valueOf(card_id), allowed_module_id,user_id,Lines_extra);
+                        }
+                        else {
+                            System.out.println("Skiped");
+                        }
                     } else {
                         Toast.makeText(getApplicationContext(), "Invalid Card Type! " + card_type,
                                 Toast.LENGTH_SHORT).show();
@@ -263,27 +284,33 @@ public class Bundle_Selection_Activity extends AppCompatActivity {
                                         Toast.LENGTH_SHORT).show();
                                 return;
                             }
-                            AlertDialog.Builder alertDialog = new AlertDialog.Builder(Bundle_Selection_Activity.this);
-                            alertDialog.setMessage("Are you performing REWORK for this bundle?")
-                                    .setCancelable(false)
-                                    .setNegativeButton("No", new DialogInterface.OnClickListener() {
-                                        @Override
-                                        public void onClick(DialogInterface dialog, int which) {
-                                            dialog.cancel();
-                                            Bundle.setRework_state("0");
-                                            endline_session_login(allowed_module_id, Lines_extra, PO, Cut, Bundle);
-                                        }
-                                    })
-                                    .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                                        @Override
-                                        public void onClick(DialogInterface dialog, int which) {
-                                            dialog.cancel();
-                                            Bundle.setRework_state("1");
-                                            endline_session_login(allowed_module_id, Lines_extra, PO, Cut, Bundle);
-                                        }
-                                    });
-                            AlertDialog alert = alertDialog.create();
-                            alert.show();
+                            if(Bundle.getRejected_pieces().equals("-1")){
+                                Bundle.setRework_state("0");
+                                endline_session_login(allowed_module_id, Lines_extra, PO, Cut, Bundle);
+                            }
+                            else {
+                                AlertDialog.Builder alertDialog = new AlertDialog.Builder(Bundle_Selection_Activity.this);
+                                alertDialog.setMessage("Are you performing REWORK for this bundle?")
+                                        .setCancelable(false)
+                                        .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(DialogInterface dialog, int which) {
+                                                dialog.cancel();
+                                                Bundle.setRework_state("0");
+                                                endline_session_login(allowed_module_id, Lines_extra, PO, Cut, Bundle);
+                                            }
+                                        })
+                                        .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(DialogInterface dialog, int which) {
+                                                dialog.cancel();
+                                                Bundle.setRework_state("1");
+                                                endline_session_login(allowed_module_id, Lines_extra, PO, Cut, Bundle);
+                                            }
+                                        });
+                                AlertDialog alert = alertDialog.create();
+                                alert.show();
+                            }
                         } else if (Bundle.getRework_state().equals("1")) {
                             Bundle.setRework_state("1");
                             endline_session_login(allowed_module_id, Lines_extra, PO, Cut, Bundle);
@@ -593,6 +620,11 @@ public class Bundle_Selection_Activity extends AppCompatActivity {
         Intent intent = new Intent(this, Line_Activity.class);
         startActivity(intent);
     }
+
+
+
+
+
     public void fetch_job_card_data(final String ItemID, final String user_permission_id, final String user_id ,final lines_model Line) {
         final HashMap<String, String> params = new HashMap<String, String>();
         System.out.println("ItemID======"+ItemID);
@@ -607,6 +639,7 @@ public class Bundle_Selection_Activity extends AppCompatActivity {
                     @Override
                     public void onResponse(JSONObject response) {
                         try {
+                            scaner = false;
                             String error = response.getString("errorNo");
                             String desc = response.getString("errorDescription");
                             if (error.equals("0")) {
@@ -664,37 +697,52 @@ public class Bundle_Selection_Activity extends AppCompatActivity {
                                                 Toast.LENGTH_SHORT).show();
                                         return;
                                     }
-                                    AlertDialog.Builder alertDialog = new AlertDialog.Builder(Bundle_Selection_Activity.this);
-                                    alertDialog.setMessage("Are you performing REWORK for this bundle?")
-                                            .setCancelable(false)
-                                            .setNegativeButton("No", new DialogInterface.OnClickListener() {
-                                                @Override
-                                                public void onClick(DialogInterface dialog, int which) {
-                                                    dialog.cancel();
-                                                    Bundle.setRework_state("0");
-                                                    Intent intent = new Intent(Bundle_Selection_Activity.this, Fault_Submission_Activity.class);
-                                                    intent.putExtra("PO", PO);
-                                                    intent.putExtra("Line", Lines_extra);
-                                                    intent.putExtra("Lot", lotCode);
-                                                    intent.putExtra("Size", new size_model(size_id,size_code));
-                                                    Bundle lists_bundle = new Bundle();
-                                                    lists_bundle.putSerializable("Faults_List", fault_list);
-                                                    intent.putExtra("Lists", lists_bundle);
-                                                    intent.putExtra("Bundle", Bundle);
-                                                    intent.putExtra("Session_id", Bundle.getSession_id());
-                                                    startActivity(intent);
-                                                }
-                                            })
-                                            .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                                                @Override
-                                                public void onClick(DialogInterface dialog, int which) {
-                                                    dialog.cancel();
-                                                    Bundle.setRework_state("1");
-                                                    endline_session_login(user_permission_id, Lines_extra, PO, lotCode, Bundle);
-                                                }
-                                            });
-                                    AlertDialog alert = alertDialog.create();
-                                    alert.show();
+                                    if(rejectedPieces.equals("-1")){
+                                        Intent intent = new Intent(Bundle_Selection_Activity.this, Fault_Submission_Activity.class);
+                                        intent.putExtra("PO", PO);
+                                        intent.putExtra("Line", Lines_extra);
+                                        intent.putExtra("Lot", lotCode);
+                                        intent.putExtra("Size", new size_model(size_id,size_code));
+                                        Bundle lists_bundle = new Bundle();
+                                        lists_bundle.putSerializable("Faults_List", fault_list);
+                                        intent.putExtra("Lists", lists_bundle);
+                                        intent.putExtra("Bundle", Bundle);
+                                        intent.putExtra("Session_id", Bundle.getSession_id());
+                                        startActivity(intent);
+                                    }
+                                    else {
+                                        AlertDialog.Builder alertDialog = new AlertDialog.Builder(Bundle_Selection_Activity.this);
+                                        alertDialog.setMessage("Are you performing REWORK for this bundle?")
+                                                .setCancelable(false)
+                                                .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                                                    @Override
+                                                    public void onClick(DialogInterface dialog, int which) {
+                                                        dialog.cancel();
+                                                        Bundle.setRework_state("0");
+                                                        Intent intent = new Intent(Bundle_Selection_Activity.this, Fault_Submission_Activity.class);
+                                                        intent.putExtra("PO", PO);
+                                                        intent.putExtra("Line", Lines_extra);
+                                                        intent.putExtra("Lot", lotCode);
+                                                        intent.putExtra("Size", new size_model(size_id, size_code));
+                                                        Bundle lists_bundle = new Bundle();
+                                                        lists_bundle.putSerializable("Faults_List", fault_list);
+                                                        intent.putExtra("Lists", lists_bundle);
+                                                        intent.putExtra("Bundle", Bundle);
+                                                        intent.putExtra("Session_id", Bundle.getSession_id());
+                                                        startActivity(intent);
+                                                    }
+                                                })
+                                                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                                                    @Override
+                                                    public void onClick(DialogInterface dialog, int which) {
+                                                        dialog.cancel();
+                                                        Bundle.setRework_state("1");
+                                                        endline_session_login(user_permission_id, Lines_extra, PO, lotCode, Bundle);
+                                                    }
+                                                });
+                                        AlertDialog alert = alertDialog.create();
+                                        alert.show();
+                                    }
                                 } else if (Bundle.getRework_state().equals("1")) {
                                     Bundle.setRework_state("1");
                                     Intent intent = new Intent(Bundle_Selection_Activity.this, Fault_Submission_Activity.class);
@@ -713,11 +761,13 @@ public class Bundle_Selection_Activity extends AppCompatActivity {
                                 hideLoader();
                             } else {
                                 hideLoader();
+                                scaner = true;
                                 Toast.makeText(getApplicationContext(), "Unable to fetch Bundles: " + desc,
                                         Toast.LENGTH_SHORT).show();
                             }
                         } catch (JSONException e) {
                             hideLoader();
+                            scaner = true;
                             System.out.println(e.getMessage());
                             Toast.makeText(getApplicationContext(), "Unexpected response, check server file",
                                     Toast.LENGTH_SHORT).show();
@@ -727,6 +777,7 @@ public class Bundle_Selection_Activity extends AppCompatActivity {
                 }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
+                scaner = true;
                 Toast.makeText(getApplicationContext(), error.toString(),
                         Toast.LENGTH_SHORT).show();
             }
@@ -745,8 +796,8 @@ public class Bundle_Selection_Activity extends AppCompatActivity {
         params.put("reworkState", Bundle.getRework_state());
         params.put("orderID", PO.getOrder_id());
         params.put("allowedModuleID", allowed_module_id);
-        params.put("rejectedPieces", Bundle.getRejected_pieces());
-        params.put("defectedPieces", Bundle.getFaulty_pieces());
+        params.put("rejectedPieces", "-1");
+        params.put("defectedPieces", "-1");
         params.put("cutReportID", Bundle.getBundle_id());
         params.put("sectionID", section.section_id);
         RequestQueue queue = Volley.newRequestQueue(getApplicationContext());
