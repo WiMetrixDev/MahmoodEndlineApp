@@ -25,4 +25,5 @@ public class Api_files {
     public String fetch_cut_history_crID_section = "Endline/getHistoryForCRIDSection.php";
 
     public String get_latest_version = "/Versions/UpdateVersion/getVersion";
+    public String getDHUSummaryAndPendingReworks = "/reports/getDHUSummaryAndPendingReworks";
 }

@@ -18,10 +18,12 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -35,11 +37,13 @@ import com.android.volley.toolbox.Volley;
 import com.example.endline.Reader.NFCReaderService;
 import com.example.endline.includes.Api_files;
 import com.example.endline.includes.IP;
+import com.example.endline.models.DHU_summary_model;
 import com.example.endline.models.bundle_model;
 import com.example.endline.models.cut_job_model;
 import com.example.endline.models.fault_model;
 import com.example.endline.models.lines_model;
 import com.example.endline.models.order_model;
+import com.example.endline.models.pending_rework_model;
 import com.example.endline.models.section_model;
 import com.example.endline.models.size_model;
 import com.example.endline.utils.Converter;
@@ -50,7 +54,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 
 public class Bundle_Selection_Activity extends AppCompatActivity {
@@ -65,11 +68,17 @@ public class Bundle_Selection_Activity extends AppCompatActivity {
     // Setup a tech list for all NfcF tags
     String[][] mTechLists = new String[][]{new String[]{MifareClassic.class.getName()}};
     Button submitbtn;
+    Button view_dhu_btn;
     ArrayList<bundle_model> bundle_list = new ArrayList<>();
     ArrayList<String> size_list = new ArrayList<>();
     ArrayList<order_model> order_list = new ArrayList<>();
     ArrayList<fault_model> fault_list = new ArrayList<>();
     ArrayList<cut_job_model> cut_job_list = new ArrayList<>();
+
+    ArrayList<DHU_summary_model> dhu_summary = new ArrayList<>();
+    ArrayList<pending_rework_model> pending_rework_list = new ArrayList<>();
+
+
     ProgressDialog nDialog;
     SearchableSpinner lot_spinner;
     SearchableSpinner bundle_spinner;
@@ -84,7 +93,8 @@ public class Bundle_Selection_Activity extends AppCompatActivity {
     Receiver receiver = new Receiver();
     Intent reader_service;
     boolean scaner = true;
-
+    View mainDHUReport;
+    LinearLayout layout_dhu_report_list;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -162,6 +172,12 @@ public class Bundle_Selection_Activity extends AppCompatActivity {
     @Override
     protected void onRestart() {
         super.onRestart();
+        scaner = true;
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
         scaner = true;
     }
 
@@ -258,12 +274,15 @@ public class Bundle_Selection_Activity extends AppCompatActivity {
     }
     public void get_views() {
         submitbtn = findViewById(R.id.submitbtn);
+        view_dhu_btn = findViewById(R.id.view_dhu_btn);
         order_spinner = findViewById(R.id.spinner_po);
         lot_spinner = findViewById(R.id.spinner_lot);
         bundle_spinner = findViewById(R.id.spinner_bundle);
         text_Line = findViewById(R.id.text_Line);
         text_Section = findViewById(R.id.text_Section);
         spinner_size = findViewById(R.id.spinner_size);
+        LayoutInflater factory = LayoutInflater.from(Bundle_Selection_Activity.this);
+        mainDHUReport = factory.inflate(R.layout.dhu_report, null);
     }
     public void layout_listeners() {
         submitbtn.setOnClickListener(new View.OnClickListener() {
@@ -322,6 +341,17 @@ public class Bundle_Selection_Activity extends AppCompatActivity {
                     Toast.makeText(getApplicationContext(), "Incomplete Form",
                             Toast.LENGTH_SHORT).show();
                 }
+
+            }
+        });
+
+
+        view_dhu_btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                getDHUReports();
+                //viewDHUReport();
 
             }
         });
@@ -420,6 +450,116 @@ public class Bundle_Selection_Activity extends AppCompatActivity {
             }
         });
     }
+
+
+
+    public void viewDHUReport() {
+        LayoutInflater factory = LayoutInflater.from(Bundle_Selection_Activity.this);
+        mainDHUReport = factory.inflate(R.layout.dhu_report, null);
+        layout_dhu_report_list = (LinearLayout) mainDHUReport.findViewById(R.id.layout_dhu_report_list);
+        android.app.AlertDialog dialog = new android.app.AlertDialog.Builder(Bundle_Selection_Activity.this).create();
+        dialog.setView(mainDHUReport);
+        layout_dhu_report_list.removeAllViews();
+        final TextView text_checked_pcs = (TextView) mainDHUReport.findViewById(R.id.text_checked_pcs);
+        final TextView text_faults = (TextView) mainDHUReport.findViewById(R.id.text_faults);
+        final TextView text_dhu = (TextView) mainDHUReport.findViewById(R.id.text_dhu);
+
+        for (final DHU_summary_model dhu_item : dhu_summary) {
+            text_checked_pcs.setText(dhu_item.getCheckedPieces());
+            text_faults.setText(dhu_item.getNoOfFaults());
+            text_dhu.setText(dhu_item.getDHU() + "%");
+        }
+
+        for (final pending_rework_model rework_item : pending_rework_list) {
+            View child = getLayoutInflater().inflate(R.layout.dhu_list_single_row, null);
+            final TextView text_cut_no = (TextView) child.findViewById(R.id.text_cut_no);
+            final TextView text_bundle_no = (TextView) child.findViewById(R.id.text_bundle_no);
+            final TextView text_bundle_size = (TextView) child.findViewById(R.id.text_bundle_size);
+            final TextView text_bundle_quantity = (TextView) child.findViewById(R.id.text_bundle_quantity);
+            final TextView text_defected_pcs = (TextView) child.findViewById(R.id.text_defected_pcs);
+
+            text_cut_no.setText(rework_item.getCutJobCode());
+            text_bundle_no.setText(rework_item.getBundleCode());
+            text_bundle_size.setText(rework_item.getSize());
+            text_bundle_quantity.setText(rework_item.getBundleQuantity());
+            text_defected_pcs.setText(rework_item.getDefectedPieces());
+
+            LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
+            layoutParams.setMargins(0, 10, 0, 0);
+            layout_dhu_report_list.addView(child, layoutParams);
+        }
+
+        dialog.show();
+    }
+
+
+    public void getDHUReports() {
+        showLoader();
+        dhu_summary.clear();
+        pending_rework_list.clear();
+        HashMap<String, String> params = new HashMap<String, String>();
+        params.put("lineID", Lines_extra.line_id);
+        params.put("sectionID", section.section_id);
+        RequestQueue queue = Volley.newRequestQueue(getApplicationContext());
+        JsonObjectRequest req = new JsonObjectRequest(Request.Method.POST, ip.getIp() +api.getDHUSummaryAndPendingReworks, new JSONObject(params),
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        try {
+                            String error = response.getString("errorNo");
+                            String desc = response.getString("errorDescription");
+                            if (error.equals("0")) {
+                                JSONArray DHUSummary = response.getJSONArray("DHUSummary");
+                                for (int i = 0; i < DHUSummary.length(); i++) {
+                                    JSONObject res = (JSONObject) DHUSummary.get(i);
+                                    String CheckedPieces = res.getString("CheckedPieces");
+                                    String NoOfFaults = res.getString("NoOfFaults");
+                                    String DHU = res.getString("DHU");
+                                    dhu_summary.add(new DHU_summary_model(CheckedPieces, NoOfFaults, DHU));
+                                }
+                                JSONArray PendingRework = response.getJSONArray("PendingRework");
+                                for (int i = 0; i < PendingRework.length(); i++) {
+                                    JSONObject res = (JSONObject) PendingRework.get(i);
+                                    String endlinesessionid = res.getString("endlinesessionid");
+                                    String cutReportID = res.getString("cutReportID");
+                                    String cutJobCode = res.getString("cutJobCode");
+                                    String bundleCode = res.getString("bundleCode");
+                                    String size = res.getString("size");
+                                    String bundleQuantity = res.getString("bundleQuantity");
+                                    String rejectedPieces = res.getString("rejectedPieces");
+                                    String defectedPieces = res.getString("defectedPieces");
+                                    pending_rework_list.add(new pending_rework_model(endlinesessionid, cutReportID, cutJobCode,bundleCode, size, bundleQuantity, rejectedPieces, defectedPieces));
+                                }
+                                hideLoader();
+                                viewDHUReport();
+                            } else {
+                                hideLoader();
+                                Toast.makeText(getApplicationContext(), "Unable to fetch DHU Report: " + desc,
+                                        Toast.LENGTH_SHORT).show();
+                            }
+                        } catch (JSONException e) {
+                            hideLoader();
+                            Toast.makeText(getApplicationContext(), "Unexpected response, check server file",
+                                    Toast.LENGTH_SHORT).show();
+                        }
+
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Toast.makeText(getApplicationContext(), error.toString(),
+                        Toast.LENGTH_SHORT).show();
+            }
+        });
+        queue.add(req);
+        req.setRetryPolicy(new DefaultRetryPolicy(10000,
+                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+
+    }
+
+
     public void fetch_orders() {
         showLoader();
         order_list.clear();
@@ -585,6 +725,7 @@ public class Bundle_Selection_Activity extends AppCompatActivity {
                                     }
                                     bundle_list.add(new bundle_model(bundle_code, bundle_status, bundle_id, bundle_qty, defected_pieces, rejectedPieces, rework_state, "",size,shade));
                                 }
+                                // Adapter will be set on size selection with size filter.
 //                                ArrayAdapter<bundle_model> dataAdapter = new ArrayAdapter<>(Bundle_Selection_Activity.this, android.R.layout.simple_spinner_item, bundle_list);
 //                                dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 //                                bundle_spinner.setAdapter(dataAdapter);
@@ -620,8 +761,6 @@ public class Bundle_Selection_Activity extends AppCompatActivity {
         Intent intent = new Intent(this, Line_Activity.class);
         startActivity(intent);
     }
-
-
 
 
 
@@ -693,6 +832,7 @@ public class Bundle_Selection_Activity extends AppCompatActivity {
                                     startActivity(intent);
                                 } else if (reworkState.equals("0")) {
                                     if(Bundle.getRejected_pieces().equals("0") && Bundle.getFaulty_pieces().equals("0")){
+                                        scaner = true;
                                         Toast.makeText(getApplicationContext(), "Bundle was cleared already!",
                                                 Toast.LENGTH_SHORT).show();
                                         return;

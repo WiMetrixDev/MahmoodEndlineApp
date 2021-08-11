@@ -58,6 +58,7 @@ public class NFCReaderService extends Service {
         public void run() {
             while (isRunning) {
                 try {
+
                 byte[] key = {(byte)0xFF, (byte)0xFF, (byte)0xFF, (byte)0xFF, (byte)0xFF, (byte)0xFF};
                 byte[] rData = new byte[48];
                 byte[] errCode = new byte[1];
@@ -74,7 +75,6 @@ public class NFCReaderService extends Service {
                     if(card_type == 0 ){
                         card_id = Integer.parseInt(readData.substring(0, 8));
                     }
-
                     Intent broadCastIntent = new Intent("nfc.tag");
                     broadCastIntent.putExtra("TagNumber", card_id);
                     broadCastIntent.putExtra("TagType", card_type);

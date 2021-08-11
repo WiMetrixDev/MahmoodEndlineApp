@@ -1,0 +1,283 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".Bundle_Selection_Activity">
+
+    <RelativeLayout
+        android:id="@+id/appbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/White"
+        app:popupTheme="@style/AppTheme.PopupOverlay">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:fontFamily="@font/futura_hv_bt_heavy"
+                android:padding="10dp"
+                android:text="Summary"
+                android:textAlignment="center"
+                android:textColor="#428831"
+                android:textSize="30sp" />
+
+        </LinearLayout>
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/details"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/appbar"
+        android:background="@drawable/tabcolor"
+        app:popupTheme="@style/AppTheme.PopupOverlay">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:weightSum="3">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="10dp"
+                    android:fontFamily="@font/futura_hv_bt_heavy"
+                    android:text="PCS Checked"
+                    android:textColor="#fff"
+                    android:textSize="20sp" />
+
+                <TextView
+                    android:id="@+id/text_checked_pcs"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_marginBottom="10dp"
+                    android:fontFamily="@font/futura_hv_bt_heavy"
+                    android:text="0"
+                    android:textColor="#fff"
+                    android:textSize="20sp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="10dp"
+                    android:fontFamily="@font/futura_hv_bt_heavy"
+                    android:text="Faults"
+                    android:textColor="#fff"
+                    android:textSize="20sp" />
+
+                <TextView
+                    android:id="@+id/text_faults"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:fontFamily="@font/futura_hv_bt_heavy"
+                    android:text="0"
+                    android:layout_marginBottom="10dp"
+                    android:textColor="#fff"
+                    android:textSize="20sp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="10dp"
+                    android:fontFamily="@font/futura_hv_bt_heavy"
+                    android:text="DHU %"
+                    android:textColor="#fff"
+                    android:textSize="20sp" />
+
+                <TextView
+                    android:id="@+id/text_dhu"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:fontFamily="@font/futura_hv_bt_heavy"
+                    android:text="0"
+                    android:layout_marginBottom="10dp"
+                    android:textColor="#fff"
+                    android:textSize="20sp" />
+            </LinearLayout>
+        </LinearLayout>
+    </RelativeLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/details"
+        android:background="@drawable/backgroundimage">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_below="@id/appbar"
+            android:orientation="vertical"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:fontFamily="@font/futura_hv_bt_heavy"
+                android:paddingTop="10dp"
+                android:text="Pending Rework"
+                android:textAlignment="center"
+                android:textColor="#428831"
+                android:textSize="24sp" />
+
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:layout_marginTop="10dp"
+                android:weightSum="5"
+                android:paddingBottom="5dp"
+                android:paddingTop="5dp"
+                android:background="@drawable/rounded_corners_bg"
+                android:orientation="horizontal">
+
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        style="@style/TextAppearance.AppCompat.Title"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:text="Cut No"
+                        android:gravity="center"
+                        android:textColor="@color/white_transparent"
+                        android:textSize="15sp" />
+                </LinearLayout>
+                <View
+                    android:layout_width="1dp"
+                    android:layout_height="match_parent"
+                    android:background="@color/White" />
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        style="@style/TextAppearance.AppCompat.Title"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:text="Bundle"
+                        android:gravity="center"
+                        android:textColor="@color/white_transparent"
+                        android:textSize="15sp" />
+                </LinearLayout>
+
+                <View
+                    android:layout_width="1dp"
+                    android:layout_height="match_parent"
+                    android:background="@color/White" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        style="@style/TextAppearance.AppCompat.Title"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:text="Size"
+                        android:gravity="center"
+                        android:textColor="@color/White"
+                        android:textSize="15sp" />
+                </LinearLayout>
+
+                <View
+                    android:layout_width="1dp"
+                    android:layout_height="match_parent"
+                    android:background="@color/White" />
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        style="@style/TextAppearance.AppCompat.Title"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:text="Quantity"
+                        android:gravity="center"
+                        android:textColor="@color/White"
+                        android:textSize="15sp" />
+                </LinearLayout>
+
+                <View
+                    android:layout_width="1dp"
+                    android:layout_height="match_parent"
+                    android:background="@color/White" />
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        style="@style/TextAppearance.AppCompat.Title"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:text="Defected PCS"
+                        android:gravity="center"
+                        android:textColor="@color/White"
+                        android:textSize="15sp" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <ScrollView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_below="@id/appbar">
+
+                <LinearLayout
+                    android:id="@+id/layout_dhu_report_list"
+                    android:layout_width="match_parent"
+                    android:layout_marginBottom="10dp"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                </LinearLayout>
+            </ScrollView>
+        </LinearLayout>
+    </LinearLayout>
+</RelativeLayout>

@@ -1,6 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#008577</color>
-    <color name="colorPrimaryDark">#00574B</color>
-    <color name="colorAccent">#D81B60</color>
+
+    <color name="colorPrimary">#4b8d3a</color>
+    <color name="colorPrimaryDark">#284619</color>
+    <color name="colorAccent">#3E6F25</color>
+    <color name="colorPrimaryLight">#bef2a3</color>
+    <color name="nav">#3E6F25</color>
+
+
+    <color name="grey_text_color">#c5c5c5</color>
+    <color name="dark_grey_text_color">#252525</color>
+    <color name="light_gray_bg">#EFEFF4</color>
+    <color name="poly_line_blue">#4885ed</color>
+    <color name="list_item_dark_grey">#181818</color>
+    <color name="list_item_light_grey">#3D3D3D</color>
+
+    <color name="back_transparent">#CC000000</color>
+    <color name="sub_category_item_bg">#EC5A60</color>
+
+    <color name="textColorsSecondary">#666666</color>
+    <color name="textColorsSecondaryDark">#989898</color>
+    <color name="titlecolor">#000</color>
+
+    <color name="grey_transparent">#D9D3D3D3</color>
+    <color name="white_transparent">#FFFFFF</color>
+    <color name="White">#FFFFFF</color>
+
+    <color name="green1">#459a4a</color>
+    <color name="green2">#25852f</color>
+    <color name="green3">#14691d</color>
+    <color name="green4">#0b3c11</color>
 </resources>

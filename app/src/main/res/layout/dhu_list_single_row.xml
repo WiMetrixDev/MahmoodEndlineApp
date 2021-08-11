@@ -1,0 +1,65 @@
+<LinearLayout android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="10dp"
+    android:background="@drawable/rounded_corners_bg_white"
+    android:orientation="horizontal"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="40sp"
+        android:orientation="horizontal"
+        android:weightSum="5"
+        android:paddingBottom="5dp"
+        android:paddingTop="5dp"
+        android:layout_marginLeft="5dp"
+        >
+        <TextView
+            android:id="@+id/text_cut_no"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center_horizontal|center"
+            android:text="Cut No 1"
+            android:textStyle="bold"
+            android:textSize="15dp" />
+
+        <TextView
+            android:id="@+id/text_bundle_no"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center_horizontal|center"
+            android:text="Bundle"
+            android:textStyle="bold"
+            android:textSize="15dp"/>
+        <TextView
+            android:id="@+id/text_bundle_size"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center_horizontal|center"
+            android:text="Size"
+            android:textStyle="bold"
+            android:textSize="15dp"/>
+        <TextView
+            android:id="@+id/text_bundle_quantity"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center_horizontal|center"
+            android:text="Quantity"
+            android:textStyle="bold"
+            android:textSize="15dp"/>
+        <TextView
+            android:id="@+id/text_defected_pcs"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center_horizontal|center"
+            android:text="Pcs"
+            android:textStyle="bold"
+            android:textSize="15dp"/>
+
+    </LinearLayout>
+
+</LinearLayout>
