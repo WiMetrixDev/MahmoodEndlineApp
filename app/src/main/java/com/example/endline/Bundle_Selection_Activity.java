@@ -324,6 +324,7 @@ public class Bundle_Selection_Activity extends AppCompatActivity {
                                             public void onClick(DialogInterface dialog, int which) {
                                                 dialog.cancel();
                                                 Bundle.setRework_state("1");
+                                                Bundle.setBundle_qty(Bundle.getFaulty_pieces());
                                                 endline_session_login(allowed_module_id, Lines_extra, PO, Cut, Bundle);
                                             }
                                         });
@@ -936,6 +937,7 @@ public class Bundle_Selection_Activity extends AppCompatActivity {
         params.put("lineID", Line.getLine_id());
         params.put("reworkState", Bundle.getRework_state());
         params.put("orderID", PO.getOrder_id());
+        params.put("CheckedPieces", Bundle.getBundle_qty());
         params.put("allowedModuleID", allowed_module_id);
         params.put("rejectedPieces", "-1");
         params.put("defectedPieces", "-1");
