@@ -349,10 +349,7 @@ public class Bundle_Selection_Activity extends AppCompatActivity {
         view_dhu_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 getDHUReports();
-                //viewDHUReport();
-
             }
         });
 
@@ -419,14 +416,17 @@ public class Bundle_Selection_Activity extends AppCompatActivity {
                 bundle_spinner.setAdapter(null);
                 if (spinner_size.getSelectedItemPosition() > 0) {
                     ArrayList<bundle_model> filterd_bundle_list = new ArrayList<>();
+                    filterd_bundle_list.add(new bundle_model("", "Please Choose", "", "0", "", "", "", "","",""));
                     for (int j=0; j<bundle_list.size(); j++){
-                        if(bundle_list.get(i).getSize().equals(spinner_size.getSelectedItem())){
+                        if(bundle_list.get(j).getSize().equals(spinner_size.getSelectedItem())){
                             filterd_bundle_list.add(bundle_list.get(j));
                         }
                     }
-                    ArrayAdapter<bundle_model> dataAdapter = new ArrayAdapter<>(Bundle_Selection_Activity.this, android.R.layout.simple_spinner_item, filterd_bundle_list);
-                    dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-                    bundle_spinner.setAdapter(dataAdapter);
+                    if(filterd_bundle_list.size()>1){
+                        ArrayAdapter<bundle_model> dataAdapter = new ArrayAdapter<>(Bundle_Selection_Activity.this, android.R.layout.simple_spinner_item, filterd_bundle_list);
+                        dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                        bundle_spinner.setAdapter(dataAdapter);
+                    }
                 }
             }
 
@@ -928,6 +928,7 @@ public class Bundle_Selection_Activity extends AppCompatActivity {
                 DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
 
     }
+
     public void endline_session_login(final String user_permission_id, final lines_model Line, final order_model PO, final String Lot, final bundle_model Bundle) {
     showLoader();
         final HashMap<String, String> params = new HashMap<String, String>();
