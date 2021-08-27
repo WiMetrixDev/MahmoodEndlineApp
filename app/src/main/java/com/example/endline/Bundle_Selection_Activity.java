@@ -533,12 +533,9 @@ public class Bundle_Selection_Activity extends AppCompatActivity {
                                     pending_rework_list.add(new pending_rework_model(endlinesessionid, cutReportID, cutJobCode,bundleCode, size, bundleQuantity, rejectedPieces, defectedPieces));
                                 }
                                 hideLoader();
-                                viewDHUReport();
-                            } else {
-                                hideLoader();
-                                Toast.makeText(getApplicationContext(), "Unable to fetch DHU Report: " + desc,
-                                        Toast.LENGTH_SHORT).show();
                             }
+                            hideLoader();
+                            viewDHUReport();
                         } catch (JSONException e) {
                             hideLoader();
                             Toast.makeText(getApplicationContext(), "Unexpected response, check server file",
@@ -937,10 +934,10 @@ public class Bundle_Selection_Activity extends AppCompatActivity {
         params.put("lineID", Line.getLine_id());
         params.put("reworkState", Bundle.getRework_state());
         params.put("orderID", PO.getOrder_id());
-        params.put("CheckedPieces", Bundle.getBundle_qty());
+        params.put("checkedPieces", Bundle.getBundle_qty());
         params.put("allowedModuleID", allowed_module_id);
-        params.put("rejectedPieces", "-1");
-        params.put("defectedPieces", "-1");
+        params.put("rejectedPieces", Bundle.getRejected_pieces());
+        params.put("defectedPieces", Bundle.getFaulty_pieces());
         params.put("cutReportID", Bundle.getBundle_id());
         params.put("sectionID", section.section_id);
         RequestQueue queue = Volley.newRequestQueue(getApplicationContext());

@@ -188,7 +188,9 @@ public class Fault_Submission_Activity extends AppCompatActivity {
         if (Bundle_extra.getRework_state().equals("0"))
             text_bundleQuantity.setText(Bundle_extra.getBundle_qty());
         else if (Bundle_extra.getRework_state().equals("1")) {
-            Bundle_extra.setBundle_qty(Bundle_extra.getFaulty_pieces());
+            if(!Bundle_extra.getFaulty_pieces().equals("-1")){
+                Bundle_extra.setBundle_qty(Bundle_extra.getFaulty_pieces());
+            }
             text_bundleQuantity.setText(Bundle_extra.getBundle_qty());
         }
         if (text_bundleQuantity.getText().toString().equals("0")) {
