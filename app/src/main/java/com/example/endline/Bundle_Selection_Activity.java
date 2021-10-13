@@ -95,6 +95,7 @@ public class Bundle_Selection_Activity extends AppCompatActivity {
     boolean scaner = true;
     View mainDHUReport;
     LinearLayout layout_dhu_report_list;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -149,12 +150,11 @@ public class Bundle_Selection_Activity extends AppCompatActivity {
             int TagNumber = arg1.getIntExtra("TagNumber", -1);
             int TagType = arg1.getIntExtra("TagType", -1);
             try {
-                if(TagType == 0){
-                    if(scaner){
+                if (TagType == 0) {
+                    if (scaner) {
                         scaner = false;
-                        fetch_job_card_data(String.valueOf(TagNumber), allowed_module_id,user_id,Lines_extra);
-                    }
-                    else {
+                        fetch_job_card_data(String.valueOf(TagNumber), allowed_module_id, user_id, Lines_extra);
+                    } else {
                         System.out.println("Skiped");
                     }
                 } else {
@@ -188,7 +188,7 @@ public class Bundle_Selection_Activity extends AppCompatActivity {
         if (order_spinner.getSelectedItemPosition() > 0) {
             final order_model PO = (order_model) order_spinner.getSelectedItem();
             cut_job_model Lot = (cut_job_model) lot_spinner.getSelectedItem();
-                fetch_bundle(PO.getOrder_id(), Lot.cut_job_id);
+            fetch_bundle(PO.getOrder_id(), Lot.cut_job_id);
         }
         try {
             if (mNfcAdapter == null) {
@@ -196,8 +196,7 @@ public class Bundle_Selection_Activity extends AppCompatActivity {
                 startService(new Intent(this, NFCReaderService.class));
                 IntentFilter filter = new IntentFilter("nfc.tag");
                 getApplicationContext().registerReceiver(receiver, filter);
-            }
-            else {
+            } else {
                 mNfcAdapter.enableForegroundDispatch(this, mPendingIntent, mFilters, mTechLists);
             }
         } catch (Exception e) {
@@ -210,7 +209,7 @@ public class Bundle_Selection_Activity extends AppCompatActivity {
         super.onPause();
         try {
             LocalBroadcastManager.getInstance(this).unregisterReceiver(receiver);
-        } catch (Exception ignored){
+        } catch (Exception ignored) {
             ignored.printStackTrace();
         }
     }
@@ -220,7 +219,7 @@ public class Bundle_Selection_Activity extends AppCompatActivity {
         super.onDestroy();
         try {
             LocalBroadcastManager.getInstance(this).unregisterReceiver(receiver);
-        } catch (Exception ignored){
+        } catch (Exception ignored) {
             ignored.printStackTrace();
         }
         stopService(new Intent(this, NFCReaderService.class));
@@ -231,6 +230,7 @@ public class Bundle_Selection_Activity extends AppCompatActivity {
         Log.i("Foreground dispatch", "Discovered tag with intent: " + intent);
         handleIntent(intent);
     }
+
     private void handleIntent(Intent intent) {
         String action = intent.getAction();
         if (NfcAdapter.ACTION_TECH_DISCOVERED.equals(action)) {
@@ -248,16 +248,15 @@ public class Bundle_Selection_Activity extends AppCompatActivity {
                 if (auth) {
                     data = mfc.readBlock(bIndex);
                     String readData = Converter.byteArrayToHexString(data);
-                    int card_type = Integer.parseInt(readData.substring(9,10));
+                    int card_type = Integer.parseInt(readData.substring(9, 10));
                     int card_id = ((0xFF & data[3]) << 24) | ((0xFF & data[2]) << 16) | ((0xFF & data[1]) << 8) | ((0xFF & data[0]));
-                    if (card_type == 0 ) {
-                        if(scaner){
+                    if (card_type == 0) {
+                        if (scaner) {
                             scaner = false;
                             card_id = Integer.parseInt(readData.substring(0, 8));
-                            System.out.println("tagID "+card_id);
-                            fetch_job_card_data(String.valueOf(card_id), allowed_module_id,user_id,Lines_extra);
-                        }
-                        else {
+                            System.out.println("tagID " + card_id);
+                            fetch_job_card_data(String.valueOf(card_id), allowed_module_id, user_id, Lines_extra);
+                        } else {
                             System.out.println("Skiped");
                         }
                     } else {
@@ -272,6 +271,7 @@ public class Bundle_Selection_Activity extends AppCompatActivity {
 
         }
     }
+
     public void get_views() {
         submitbtn = findViewById(R.id.submitbtn);
         view_dhu_btn = findViewById(R.id.view_dhu_btn);
@@ -284,12 +284,13 @@ public class Bundle_Selection_Activity extends AppCompatActivity {
         LayoutInflater factory = LayoutInflater.from(Bundle_Selection_Activity.this);
         mainDHUReport = factory.inflate(R.layout.dhu_report, null);
     }
+
     public void layout_listeners() {
         submitbtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 System.out.println(bundle_spinner.getSelectedItemPosition());
-                if (order_spinner.getSelectedItemPosition() > 0 && lot_spinner.getSelectedItemPosition() > 0 && spinner_size.getSelectedItemPosition() > 0  && bundle_spinner.getSelectedItemPosition() > 0) {
+                if (order_spinner.getSelectedItemPosition() > 0 && lot_spinner.getSelectedItemPosition() > 0 && spinner_size.getSelectedItemPosition() > 0 && bundle_spinner.getSelectedItemPosition() > 0) {
                     final String Cut = lot_spinner.getSelectedItem().toString();
                     final bundle_model Bundle = (bundle_model) bundle_spinner.getSelectedItem();
                     final order_model PO = (order_model) order_spinner.getSelectedItem();
@@ -298,16 +299,15 @@ public class Bundle_Selection_Activity extends AppCompatActivity {
                         endline_session_login(allowed_module_id, Lines_extra, PO, Cut, Bundle);
                     } else {
                         if (Bundle.getRework_state().equals("0")) {
-                            if(Bundle.getRejected_pieces().equals("0") && Bundle.getFaulty_pieces().equals("0")){
+                            if (Bundle.getRejected_pieces().equals("0") && Bundle.getFaulty_pieces().equals("0")) {
                                 Toast.makeText(getApplicationContext(), "Bundle was cleared already!",
                                         Toast.LENGTH_SHORT).show();
                                 return;
                             }
-                            if(Bundle.getRejected_pieces().equals("-1")){
+                            if (Bundle.getRejected_pieces().equals("-1")) {
                                 Bundle.setRework_state("0");
                                 endline_session_login(allowed_module_id, Lines_extra, PO, Cut, Bundle);
-                            }
-                            else {
+                            } else {
                                 AlertDialog.Builder alertDialog = new AlertDialog.Builder(Bundle_Selection_Activity.this);
                                 alertDialog.setMessage("Are you performing REWORK for this bundle?")
                                         .setCancelable(false)
@@ -355,6 +355,7 @@ public class Bundle_Selection_Activity extends AppCompatActivity {
         });
 
     }
+
     public void get_extras() {
         Intent i = getIntent();
         Lines_extra = (lines_model) i.getSerializableExtra("Line");
@@ -363,6 +364,7 @@ public class Bundle_Selection_Activity extends AppCompatActivity {
         text_Line.setText(Lines_extra.line_desc);
         text_Section.setText(section.getSection_code());
     }
+
     public void showLoader() {
         nDialog = new ProgressDialog(Bundle_Selection_Activity.this);
         nDialog.setMessage("Please Wait..");
@@ -371,10 +373,12 @@ public class Bundle_Selection_Activity extends AppCompatActivity {
         nDialog.setCancelable(true);
         nDialog.show();
     }
+
     public void hideLoader() {
         nDialog.hide();
         nDialog.cancel();
     }
+
     public void layout_spinners() {
         order_spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
@@ -382,7 +386,7 @@ public class Bundle_Selection_Activity extends AppCompatActivity {
                 lot_spinner.setAdapter(null);
                 bundle_spinner.setAdapter(null);
                 spinner_size.setAdapter(null);
-                if(order_spinner.getSelectedItemPosition()>0){
+                if (order_spinner.getSelectedItemPosition() > 0) {
                     order_model order = (order_model) order_spinner.getSelectedItem();
                     fetch_cut_jobs(order.getOrder_id());
                 }
@@ -401,7 +405,7 @@ public class Bundle_Selection_Activity extends AppCompatActivity {
                 if (lot_spinner.getSelectedItemPosition() > 0) {
                     order_model order = (order_model) order_spinner.getSelectedItem();
                     cut_job_model Lot = (cut_job_model) lot_spinner.getSelectedItem();
-                    fetch_bundle(order.getOrder_id(),Lot.cut_job_id);
+                    fetch_bundle(order.getOrder_id(), Lot.cut_job_id);
                 }
             }
 
@@ -417,13 +421,13 @@ public class Bundle_Selection_Activity extends AppCompatActivity {
                 bundle_spinner.setAdapter(null);
                 if (spinner_size.getSelectedItemPosition() > 0) {
                     ArrayList<bundle_model> filterd_bundle_list = new ArrayList<>();
-                    filterd_bundle_list.add(new bundle_model("", "Please Choose", "", "0", "", "", "", "","",""));
-                    for (int j=0; j<bundle_list.size(); j++){
-                        if(bundle_list.get(j).getSize().equals(spinner_size.getSelectedItem())){
+                    filterd_bundle_list.add(new bundle_model("", "Please Choose", "", "0", "", "", "", "", "", ""));
+                    for (int j = 0; j < bundle_list.size(); j++) {
+                        if (bundle_list.get(j).getSize().equals(spinner_size.getSelectedItem())) {
                             filterd_bundle_list.add(bundle_list.get(j));
                         }
                     }
-                    if(filterd_bundle_list.size()>1){
+                    if (filterd_bundle_list.size() > 1) {
                         ArrayAdapter<bundle_model> dataAdapter = new ArrayAdapter<>(Bundle_Selection_Activity.this, android.R.layout.simple_spinner_item, filterd_bundle_list);
                         dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
                         bundle_spinner.setAdapter(dataAdapter);
@@ -438,7 +442,6 @@ public class Bundle_Selection_Activity extends AppCompatActivity {
         });
 
 
-
         bundle_spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
@@ -451,7 +454,6 @@ public class Bundle_Selection_Activity extends AppCompatActivity {
             }
         });
     }
-
 
 
     public void viewDHUReport() {
@@ -503,7 +505,7 @@ public class Bundle_Selection_Activity extends AppCompatActivity {
         params.put("lineID", Lines_extra.line_id);
         params.put("sectionID", section.section_id);
         RequestQueue queue = Volley.newRequestQueue(getApplicationContext());
-        JsonObjectRequest req = new JsonObjectRequest(Request.Method.POST, ip.getIp() +api.getDHUSummaryAndPendingReworks, new JSONObject(params),
+        JsonObjectRequest req = new JsonObjectRequest(Request.Method.POST, ip.getIp() + api.getDHUSummaryAndPendingReworks, new JSONObject(params),
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
@@ -530,7 +532,7 @@ public class Bundle_Selection_Activity extends AppCompatActivity {
                                     String bundleQuantity = res.getString("bundleQuantity");
                                     String rejectedPieces = res.getString("rejectedPieces");
                                     String defectedPieces = res.getString("defectedPieces");
-                                    pending_rework_list.add(new pending_rework_model(endlinesessionid, cutReportID, cutJobCode,bundleCode, size, bundleQuantity, rejectedPieces, defectedPieces));
+                                    pending_rework_list.add(new pending_rework_model(endlinesessionid, cutReportID, cutJobCode, bundleCode, size, bundleQuantity, rejectedPieces, defectedPieces));
                                 }
                                 hideLoader();
                             }
@@ -563,7 +565,7 @@ public class Bundle_Selection_Activity extends AppCompatActivity {
         order_list.clear();
         HashMap<String, String> params = new HashMap<String, String>();
         RequestQueue queue = Volley.newRequestQueue(getApplicationContext());
-        JsonObjectRequest req = new JsonObjectRequest(Request.Method.GET, ip.getIp() +api.getPOs, new JSONObject(params),
+        JsonObjectRequest req = new JsonObjectRequest(Request.Method.GET, ip.getIp() + api.getPOs, new JSONObject(params),
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
@@ -575,7 +577,7 @@ public class Bundle_Selection_Activity extends AppCompatActivity {
                                 order_list.add(new order_model("", "Please Choose", "", "", ""));
                                 for (int i = 0; i < s.length(); i++) {
                                     JSONObject res = (JSONObject) s.get(i);
-                                    System.out.println("==="+res);
+                                    System.out.println("===" + res);
                                     String order_id = res.getString("productionOrderID");
                                     String po_no = res.getString("productionOrderCode");
                                     String color = res.getString("color");
@@ -613,11 +615,12 @@ public class Bundle_Selection_Activity extends AppCompatActivity {
                 DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
 
     }
+
     public void fetch_cut_jobs(final String Order) {
         showLoader();
         cut_job_list.clear();
         final HashMap<String, String> params = new HashMap<String, String>();
-        params.put("productionOrderID",Order);
+        params.put("productionOrderID", Order);
         RequestQueue queue = Volley.newRequestQueue(getApplicationContext());
         JsonObjectRequest req = new JsonObjectRequest(Request.Method.POST, ip.getIp() + api.getJobCardsForOrderID, new JSONObject(params),
                 new Response.Listener<JSONObject>() {
@@ -667,11 +670,11 @@ public class Bundle_Selection_Activity extends AppCompatActivity {
     }
 
 
-    public void fetch_size(){
+    public void fetch_size() {
         size_list.clear();
         size_list.add("Please Choose");
-        for (int i=1; i<bundle_list.size(); i++){
-            if(!size_list.contains(bundle_list.get(i).getSize())) {
+        for (int i = 1; i < bundle_list.size(); i++) {
+            if (!size_list.contains(bundle_list.get(i).getSize())) {
                 size_list.add(bundle_list.get(i).getSize());
             }
         }
@@ -686,7 +689,7 @@ public class Bundle_Selection_Activity extends AppCompatActivity {
         showLoader();
         bundle_list.clear();
         final HashMap<String, String> params = new HashMap<String, String>();
-        params.put("cutJobID",Lot);
+        params.put("cutJobID", Lot);
         params.put("sectionID", section.section_id);
         RequestQueue queue = Volley.newRequestQueue(getApplicationContext());
         JsonObjectRequest req = new JsonObjectRequest(Request.Method.POST, ip.getIp() + api.getBundlesForCutJob, new JSONObject(params),
@@ -698,7 +701,8 @@ public class Bundle_Selection_Activity extends AppCompatActivity {
                             String desc = response.getString("errorDescription");
                             if (error.equals("0")) {
                                 JSONArray s = response.getJSONArray("data");
-                                bundle_list.add(new bundle_model("", "Please Choose", "", "0", "", "", "", "","",""));
+                                bundle_list.add(new bundle_model("", "Please Choose", "", "0", "", "", "", "", "", ""));
+                                int counter = 0;
                                 for (int i = 0; i < s.length(); i++) {
                                     JSONObject res = (JSONObject) s.get(i);
                                     System.out.println(res);
@@ -707,10 +711,10 @@ public class Bundle_Selection_Activity extends AppCompatActivity {
                                     String bundle_id = res.getString("bundleID");
                                     String bundle_qty = res.getString("bundleQuantity");
                                     String rework_state = res.getString("reworkState");
-                                    String defected_pieces =  res.getString("defectedPieces");
-                                    String rejectedPieces =  res.getString("rejectedPieces");
-                                    String size =  res.getString("size");
-                                    String shade =  res.getString("shade");
+                                    String defected_pieces = res.getString("defectedPieces");
+                                    String rejectedPieces = res.getString("rejectedPieces");
+                                    String size = res.getString("size");
+                                    String shade = res.getString("shade");
 
                                     if (rework_state.equals("-1")) {
                                         bundle_status = "NOT CHECKED";
@@ -721,15 +725,17 @@ public class Bundle_Selection_Activity extends AppCompatActivity {
                                     if (rework_state.equals("1")) {
                                         bundle_status = "REWORKED";
                                     }
-                                    bundle_list.add(new bundle_model(bundle_code, bundle_status, bundle_id, bundle_qty, defected_pieces, rejectedPieces, rework_state, "",size,shade));
+                                    bundle_list.add(new bundle_model(bundle_code, bundle_status, bundle_id, bundle_qty, defected_pieces, rejectedPieces, rework_state, "", size, shade));
                                 }
-                                // Adapter will be set on size selection with size filter.
+
+//                                Adapter will be set on size selection with size filter.
 //                                ArrayAdapter<bundle_model> dataAdapter = new ArrayAdapter<>(Bundle_Selection_Activity.this, android.R.layout.simple_spinner_item, bundle_list);
 //                                dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 //                                bundle_spinner.setAdapter(dataAdapter);
 
                                 fetch_size();
                                 hideLoader();
+
                             } else {
                                 hideLoader();
                                 Toast.makeText(getApplicationContext(), "Unable to fetch Bundles: " + desc,
@@ -755,16 +761,16 @@ public class Bundle_Selection_Activity extends AppCompatActivity {
                 DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
                 DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
     }
+
     public void onBackPressed() {
         Intent intent = new Intent(this, Line_Activity.class);
         startActivity(intent);
     }
 
 
-
-    public void fetch_job_card_data(final String ItemID, final String user_permission_id, final String user_id ,final lines_model Line) {
+    public void fetch_job_card_data(final String ItemID, final String user_permission_id, final String user_id, final lines_model Line) {
         final HashMap<String, String> params = new HashMap<String, String>();
-        System.out.println("ItemID======"+ItemID);
+        System.out.println("ItemID======" + ItemID);
         params.put("tagID", ItemID);
         params.put("userID", user_id);
         params.put("lineID", Line.getLine_id());
@@ -780,7 +786,7 @@ public class Bundle_Selection_Activity extends AppCompatActivity {
                             String error = response.getString("errorNo");
                             String desc = response.getString("errorDescription");
                             if (error.equals("0")) {
-                                JSONObject  s = response.getJSONObject("data");
+                                JSONObject s = response.getJSONObject("data");
                                 System.out.println(s);
                                 String orderID = s.getString("productionOrderID");
                                 String style = s.getString("styleCode");
@@ -800,7 +806,7 @@ public class Bundle_Selection_Activity extends AppCompatActivity {
                                 String shade = "";
 
                                 String bundle_status = "";
-                                System.out.println("b==="+bundleCode);
+                                System.out.println("b===" + bundleCode);
                                 if (reworkState.equals("-1")) {
                                     bundle_status = "NOT CHECKED";
                                 }
@@ -811,14 +817,14 @@ public class Bundle_Selection_Activity extends AppCompatActivity {
                                     bundle_status = "REWORKED";
                                 }
                                 final order_model PO = new order_model(orderID, orderCode, color, size_code, style);
-                                final bundle_model Bundle = new bundle_model(bundleCode, bundle_status, bundleID, bundleQuantity, faultyPieces, rejectedPieces, reworkState, endlineSessionId, size_code,shade );
+                                final bundle_model Bundle = new bundle_model(bundleCode, bundle_status, bundleID, bundleQuantity, faultyPieces, rejectedPieces, reworkState, endlineSessionId, size_code, shade);
                                 bundle_list.add(Bundle);
                                 if (reworkState.equals("-1")) {
                                     Bundle.setRework_state("0");
                                     Intent intent = new Intent(Bundle_Selection_Activity.this, Fault_Submission_Activity.class);
                                     intent.putExtra("PO", PO);
                                     intent.putExtra("Line", Lines_extra);
-                                    intent.putExtra("Size", new size_model(size_id,size_code));
+                                    intent.putExtra("Size", new size_model(size_id, size_code));
                                     //intent.putExtra("Section", Section_extra);
                                     Bundle lists_bundle = new Bundle();
                                     //lists_bundle.putSerializable("Departments_List", department_list);
@@ -829,26 +835,25 @@ public class Bundle_Selection_Activity extends AppCompatActivity {
                                     intent.putExtra("Session_id", Bundle.getSession_id());
                                     startActivity(intent);
                                 } else if (reworkState.equals("0")) {
-                                    if(Bundle.getRejected_pieces().equals("0") && Bundle.getFaulty_pieces().equals("0")){
+                                    if (Bundle.getRejected_pieces().equals("0") && Bundle.getFaulty_pieces().equals("0")) {
                                         scaner = true;
                                         Toast.makeText(getApplicationContext(), "Bundle was cleared already!",
                                                 Toast.LENGTH_SHORT).show();
                                         return;
                                     }
-                                    if(rejectedPieces.equals("-1")){
+                                    if (rejectedPieces.equals("-1")) {
                                         Intent intent = new Intent(Bundle_Selection_Activity.this, Fault_Submission_Activity.class);
                                         intent.putExtra("PO", PO);
                                         intent.putExtra("Line", Lines_extra);
                                         intent.putExtra("Lot", lotCode);
-                                        intent.putExtra("Size", new size_model(size_id,size_code));
+                                        intent.putExtra("Size", new size_model(size_id, size_code));
                                         Bundle lists_bundle = new Bundle();
                                         lists_bundle.putSerializable("Faults_List", fault_list);
                                         intent.putExtra("Lists", lists_bundle);
                                         intent.putExtra("Bundle", Bundle);
                                         intent.putExtra("Session_id", Bundle.getSession_id());
                                         startActivity(intent);
-                                    }
-                                    else {
+                                    } else {
                                         AlertDialog.Builder alertDialog = new AlertDialog.Builder(Bundle_Selection_Activity.this);
                                         alertDialog.setMessage("Are you performing REWORK for this bundle?")
                                                 .setCancelable(false)
@@ -887,7 +892,7 @@ public class Bundle_Selection_Activity extends AppCompatActivity {
                                     intent.putExtra("PO", PO);
                                     intent.putExtra("Line", Lines_extra);
                                     intent.putExtra("Lot", lotCode);
-                                    intent.putExtra("Size", new size_model(size_id,size_code));
+                                    intent.putExtra("Size", new size_model(size_id, size_code));
                                     Bundle lists_bundle = new Bundle();
                                     //lists_bundle.putSerializable("Departments_List", department_list);
                                     lists_bundle.putSerializable("Faults_List", fault_list);
@@ -928,7 +933,7 @@ public class Bundle_Selection_Activity extends AppCompatActivity {
     }
 
     public void endline_session_login(final String user_permission_id, final lines_model Line, final order_model PO, final String Lot, final bundle_model Bundle) {
-    showLoader();
+        showLoader();
         final HashMap<String, String> params = new HashMap<String, String>();
         params.put("userID", user_id);
         params.put("lineID", Line.getLine_id());
@@ -946,7 +951,7 @@ public class Bundle_Selection_Activity extends AppCompatActivity {
                     @Override
                     public void onResponse(JSONObject response) {
                         try {
-                            System.out.println("===="+response);
+                            System.out.println("====" + response);
                             String error = response.getString("errorNo");
                             String desc = response.getString("errorDescription");
                             if (error.equals("0")) {

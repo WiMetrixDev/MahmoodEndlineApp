@@ -408,7 +408,7 @@ public class Fault_Submission_Activity extends AppCompatActivity {
         operation_list.clear();
         final HashMap<String, String> params = new HashMap<>();
         params.put("bundleID", Bundle_extra.getBundle_id());
-        params.put("sectionID", section.section_id);
+        params.put("sectionID", section.getSection_id());
 
         RequestQueue queue = Volley.newRequestQueue(getApplicationContext());
 
