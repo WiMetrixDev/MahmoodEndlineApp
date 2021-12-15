@@ -177,12 +177,11 @@ public class Singup_Activity extends AppCompatActivity {
                                         Intent intent = new Intent(Singup_Activity.this, Line_Activity.class);
                                         intent.putExtra("Activity",new module_model(res.getString("moduleName"),res.getString("allowedModuleID")));
                                         startActivity(intent);
-                                    }
-                                    else {
-                                        Toast.makeText(getApplicationContext(), "Module not allowed!",
-                                                Toast.LENGTH_SHORT).show();
+                                        return;
                                     }
                                 }
+                                Toast.makeText(getApplicationContext(), "Module not allowed!",
+                                        Toast.LENGTH_SHORT).show();
                             } else {
                                 hideLoader();
                                 Toast.makeText(getApplicationContext(), "Unable to Login " + desc,

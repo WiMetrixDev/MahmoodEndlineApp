@@ -782,10 +782,10 @@ public class Bundle_Selection_Activity extends AppCompatActivity {
                     @Override
                     public void onResponse(JSONObject response) {
                         try {
+                            System.out.println(response);
                             String error = response.getString("errorNo");
                             String desc = response.getString("errorDescription");
                             if (error.equals("0")) {
-                                scaner = true;
                                 JSONObject s = response.getJSONObject("data");
                                 String orderID = s.getString("productionOrderID");
                                 String style = s.getString("styleCode");
