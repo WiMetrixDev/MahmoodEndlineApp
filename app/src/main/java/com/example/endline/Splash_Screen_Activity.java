@@ -46,7 +46,7 @@ public class Splash_Screen_Activity extends AppCompatActivity {
             ActivityCompat.requestPermissions(Splash_Screen_Activity.this, new String[] { permission }, requestCode);
         }
         else {
-            UpdateApp atualizaApp = new UpdateApp(Splash_Screen_Activity.this);
+            UpdateApp atualizaApp = new UpdateApp(this);
             atualizaApp.setContext(getApplicationContext());
             atualizaApp.execute(finalPath);
         }
@@ -59,7 +59,7 @@ public class Splash_Screen_Activity extends AppCompatActivity {
             case 11:
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 
-                    UpdateApp atualizaApp = new UpdateApp(Splash_Screen_Activity.this);
+                    UpdateApp atualizaApp = new UpdateApp(this);
                     atualizaApp.setContext(getApplicationContext());
                     atualizaApp.execute(finalPath);
 

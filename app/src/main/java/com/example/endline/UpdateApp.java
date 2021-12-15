@@ -84,6 +84,7 @@ public class UpdateApp extends AsyncTask<String, Integer, Void> {
             dialog.dismiss();
         }
 
+
         Uri fileUri = FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID + ".fileprovider", outputFile);
 
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
@@ -98,7 +99,6 @@ public class UpdateApp extends AsyncTask<String, Integer, Void> {
             String fileName = "MahmoodEndline.apk";
             destination += fileName;
             Uri uri = Uri.parse("file://" + destination);
-
             Intent install = new Intent(Intent.ACTION_VIEW);
             install.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
             install.setDataAndType(uri, "application/vnd.android.package-archive");

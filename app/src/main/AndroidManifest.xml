@@ -27,8 +27,8 @@
       android:required="true" />
   <uses-permission android:name="android.permission.NFC" />
 
-  <application android:theme="@style/AppTheme" android:supportsRtl="true" android:roundIcon="@mipmap/ic_launcher_round" android:label="@string/app_name" android:icon="@mipmap/ic_launcher" android:allowBackup="true">
-    <service android:name=".Reader.NFCReaderService" android:enabled="true" android:exported="false">
+  <application android:theme="@style/AppTheme" android:supportsRtl="true" android:roundIcon="@mipmap/ic_launcher_round" android:label="@string/app_name" android:icon="@mipmap/ic_launcher"  android:allowBackup="true">
+    <service android:name=".Reader.NFCReaderService" android:enabled="true" android:testOnly="false" android:exported="false">
       <intent-filter>
         <action android:name="nfc.tag"/>
       </intent-filter>
